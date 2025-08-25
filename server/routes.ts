@@ -438,6 +438,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Wallet balance endpoints
+  app.get("/api/wallet/balances", async (req, res) => {
+    try {
+      // In production, this would fetch real wallet balances
+      const response = {
+        success: true,
+        data: [
+          {
+            network: 'bitcoin',
+            token: 'BTC',
+            balance: '0.00000000',
+            usdValue: '0.00',
+            address: 'bc1qn559veuv6khmhyx45kpuz3e427srngtmpnk5zl'
+          },
+          {
+            network: 'internet-computer',
+            token: 'ckBTC',
+            balance: '0.00000000',
+            usdValue: '0.00',
+            address: 'rdmx6-jaaaa-aaaah-qcaiq-cai'
+          }
+        ]
+      };
+
+      res.json(response);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch wallet balances"
+      });
+    }
+  });
+
+  app.get("/api/wallet/fees", async (req, res) => {
+    try {
+      // In production, this would fetch real network fees
+      const response = {
+        success: true,
+        data: [
+          {
+            network: 'bitcoin',
+            fee: '0.00000703',
+            feeToken: 'BTC'
+          },
+          {
+            network: 'internet-computer',
+            fee: '0.00000100',
+            feeToken: 'ckBTC'
+          }
+        ]
+      };
+
+      res.json(response);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch transaction fees"
+      });
+    }
+  });
+
+  app.post("/api/wallet/deposit", async (req, res) => {
+    try {
+      const { network, token } = req.body;
+      
+      // In production, this would generate a real deposit address
+      let address;
+      if (network === 'bitcoin') {
+        address = 'bc1qn559veuv6khmhyx45kpuz3e427srngtmpnk5zl';
+      } else {
+        address = 'rdmx6-jaaaa-aaaah-qcaiq-cai';
+      }
+
+      const response = {
+        success: true,
+        data: { address }
+      };
+
+      res.json(response);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to create deposit address"
+      });
+    }
+  });
+
+  app.post("/api/wallet/withdraw", async (req, res) => {
+    try {
+      const { network, token, amount, destinationAddress } = req.body;
+      
+      // In production, this would initiate a real withdrawal
+      const transactionId = 'tx_' + Date.now().toString();
+
+      const response = {
+        success: true,
+        data: { transactionId }
+      };
+
+      res.json(response);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to initiate withdrawal"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

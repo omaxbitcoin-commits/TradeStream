@@ -43,12 +43,16 @@ export function Header() {
                   {t('nav.monitor')}
                 </a>
               </Link>
-              <a href="#" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-holdings">
-                {t('nav.holdings')}
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-earn">
-                {t('nav.earn')}
-              </a>
+              <Link href="/holdings">
+                <a className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-holdings">
+                  {t('nav.holdings')}
+                </a>
+              </Link>
+              <Link href="/earn">
+                <a className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-earn">
+                  {t('nav.earn')}
+                </a>
+              </Link>
               <a href="#" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-points">
                 {t('nav.points')}
               </a>

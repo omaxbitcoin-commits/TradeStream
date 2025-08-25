@@ -7,14 +7,14 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-12">
           <div className="flex items-center space-x-6">
-            <button className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors" data-testid="button-sniper">
+            <a href="/sniper" className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors" data-testid="button-sniper">
               <Crosshair className="w-4 h-4" />
               <span className="text-sm">Sniper</span>
-            </button>
-            <button className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors" data-testid="button-wallet-tracker">
+            </a>
+            <a href="/wallet-manager" className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors" data-testid="button-wallet-tracker">
               <Wallet className="w-4 h-4" />
-              <span className="text-sm">Wallet Tracker</span>
-            </button>
+              <span className="text-sm">Wallet Manager</span>
+            </a>
             <button className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors" data-testid="button-monitor">
               <Activity className="w-4 h-4" />
               <span className="text-sm">Monitor</span>

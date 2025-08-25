@@ -49,7 +49,7 @@ export const trades = pgTable("trades", {
   tokenId: varchar("token_id").references(() => tokens.id),
   walletId: varchar("wallet_id").references(() => wallets.id),
   type: text("type").notNull(), // 'buy', 'sell'
-  amount: decimal("amount", { precision: 18, scale = 8 }),
+  amount: decimal("amount", { precision: 18, scale: 8 }),
   price: decimal("price", { precision: 18, scale: 8 }),
   value: decimal("value", { precision: 18, scale: 2 }),
   timestamp: timestamp("timestamp").defaultNow(),
