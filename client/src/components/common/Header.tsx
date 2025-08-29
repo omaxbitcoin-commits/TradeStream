@@ -3,12 +3,16 @@ import { Link } from 'wouter';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { WalletConnectionModal } from '@/components/modals/WalletConnectionModal';
-import { Diamond, Globe, Palette, Search, Bell, UserCircle } from 'lucide-react';
+import { SettingsModal } from '@/components/modals/SettingsModal';
+import { NotificationsPopup } from '@/components/modals/NotificationsPopup';
+import { ProfileMenu } from '@/components/modals/ProfileMenu';
+import { Diamond, Globe, Palette, Search, Bell, UserCircle, Settings } from 'lucide-react';
 
 export function Header() {
   const { toggleTheme } = useTheme();
   const { language, toggleLanguage, t } = useLanguage();
   const [showWalletModal, setShowWalletModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
 
   return (
@@ -84,13 +88,24 @@ export function Header() {
                 <Search className="w-5 h-5" />
               </button>
 
-              {/* Notifications */}
-              <button className="relative text-muted-foreground hover:text-foreground transition-colors" data-testid="button-notifications">
-                <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  3
-                </span>
+              {/* Settings */}
+              <button 
+                onClick={() => setShowSettingsModal(true)}
+                className="text-muted-foreground hover:text-foreground transition-colors" 
+                data-testid="button-settings"
+              >
+                <Settings className="w-5 h-5" />
               </button>
+
+              {/* Notifications */}
+              <NotificationsPopup>
+                <button className="relative text-muted-foreground hover:text-foreground transition-colors" data-testid="button-notifications">
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    3
+                  </span>
+                </button>
+              </NotificationsPopup>
 
               {/* Connect Wallet */}
               <button 
@@ -102,9 +117,11 @@ export function Header() {
               </button>
 
               {/* Account Menu */}
-              <button className="text-muted-foreground hover:text-foreground transition-colors" data-testid="button-account">
-                <UserCircle className="w-6 h-6" />
-              </button>
+              <ProfileMenu>
+                <button className="text-muted-foreground hover:text-foreground transition-colors" data-testid="button-account">
+                  <UserCircle className="w-6 h-6" />
+                </button>
+              </ProfileMenu>
             </div>
           </div>
         </div>
@@ -117,6 +134,11 @@ export function Header() {
           setIsWalletConnected(true);
           setShowWalletModal(false);
         }}
+      />
+      
+      <SettingsModal 
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
       />
     </>
   );

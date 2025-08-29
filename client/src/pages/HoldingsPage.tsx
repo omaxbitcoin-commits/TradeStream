@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PnLPopup } from '@/components/modals/PnLPopup';
 import { Search, Filter, TrendingUp, DollarSign, Wallet, BarChart3, Settings } from 'lucide-react';
 
 export default function HoldingsPage() {
@@ -73,19 +74,21 @@ export default function HoldingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="w-5 h-5 text-destructive" />
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground">P&L</p>
-                <p className="text-lg font-bold text-destructive" data-testid="text-pnl">
-                  {portfolioStats.pnl}
-                </p>
+        <PnLPopup>
+          <Card className="cursor-pointer hover:bg-muted/20 transition-colors">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-2">
+                <TrendingUp className="w-5 h-5 text-destructive" />
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">P&L</p>
+                  <p className="text-lg font-bold text-destructive" data-testid="text-pnl">
+                    {portfolioStats.pnl}
+                  </p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </PnLPopup>
       </div>
 
       {/* Controls */}
