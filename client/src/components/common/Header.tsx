@@ -32,20 +32,30 @@ export function Header() {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <Link href="/trending" className="text-foreground hover:text-accent transition-colors font-medium" data-testid="link-trending">
-                {t('nav.trending')}
+              <Link href="/trending">
+                <a className="text-foreground hover:text-accent transition-colors font-medium" data-testid="link-trending">
+                  {t('nav.trending')}
+                </a>
               </Link>
-              <Link href="/wallet" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-wallet-tracker">
-                {t('nav.walletTracker')}
+              <Link href="/wallet">
+                <a className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-wallet-tracker">
+                  {t('nav.walletTracker')}
+                </a>
               </Link>
-              <Link href="/trenches" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-monitor">
-                {t('nav.monitor')}
+              <Link href="/trenches">
+                <a className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-monitor">
+                  {t('nav.monitor')}
+                </a>
               </Link>
-              <Link href="/holdings" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-holdings">
-                {t('nav.holdings')}
+              <Link href="/holdings">
+                <a className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-holdings">
+                  {t('nav.holdings')}
+                </a>
               </Link>
-              <Link href="/earn" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-earn">
-                {t('nav.earn')}
+              <Link href="/earn">
+                <a className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-earn">
+                  {t('nav.earn')}
+                </a>
               </Link>
               <a href="#" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-points">
                 {t('nav.points')}
