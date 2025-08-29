@@ -114,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true,
         data: odinTokens
       };
-      
+
       res.json(response);
     } catch (error) {
       const errorResponse: APIResponse<TokenData[]> = {
@@ -235,7 +235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true,
         data: astroapeTokens
       };
-      
+
       res.json(response);
     } catch (error) {
       const errorResponse: APIResponse<TokenData[]> = {
@@ -252,23 +252,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const tycheTokens: TokenData[] = [
         {
           id: "tyche-1",
-          name: "FortuneCoin",
-          symbol: "FORT",
-          contractAddress: "0x1a123456789a123456789a123456789a123456789",
-          price: "0.00289",
-          marketCap: "378.5K",
-          volume24h: "45.3K",
-          change5m: "+4.2%",
-          change1h: "+9.7%",
-          change6h: "+17.3%",
-          change24h: "+31.6%",
-          holders: 745,
-          liquidity: "112.8K",
-          age: "3 days ago",
-          isBundled: false,
-          isVerified: true,
-          category: "graduated",
-          avatar: "https://images.unsplash.com/photo-1605792657660-596af9009e82?w=64&h=64&fit=crop"
+          name: "Tyche Token",
+          symbol: "TYCHE",
+          price: "$0.892K",
+          marketCap: "$8.92K",
+          change5m: "+12.3%",
+          change1h: "+18.7%",
+          change6h: "+25.1%",
+          change24h: "+31.4%",
+          volume24h: "$2.14K",
+          age: "2 days ago",
+          holders: 456,
+          avatar: "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=40&h=40&fit=crop"
         },
         {
           id: "tyche-2",
@@ -288,7 +283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isBundled: true,
           isVerified: false,
           category: "about_to_graduate",
-          avatar: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=64&h=64&fit=crop"
+          avatar: "https://images.unsplash.com/photo-1578662996442-44f60036fc0c?w=64&h=64&fit=crop"
         },
         {
           id: "tyche-3",
@@ -348,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isBundled: false,
           isVerified: true,
           category: "about_to_graduate",
-          avatar: "https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?w=64&h=64&fit=crop"
+          avatar: "https://images.unsplash.com/photo-1516339901926-36d01238458a?w=64&h=64&fit=crop"
         }
       ];
 
@@ -356,7 +351,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true,
         data: tycheTokens
       };
-      
+
       res.json(response);
     } catch (error) {
       const errorResponse: APIResponse<TokenData[]> = {
@@ -367,17 +362,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // KongSwap API
+  app.get('/api/kongswap/tokens', (req, res) => {
+    const mockTokens = [
+      {
+        id: 'kongswap-1',
+        name: 'Kong Token',
+        symbol: 'KONG',
+        price: '$1.234K',
+        marketCap: '$12.34K',
+        change5m: '+8.9%',
+        change1h: '+14.2%',
+        change6h: '+19.8%',
+        change24h: '+27.3%',
+        volume24h: '$3.45K',
+        age: '1 day ago',
+        holders: 789,
+        avatar: "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=40&h=40&fit=crop"
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: mockTokens
+    });
+  });
+
   // Token details endpoint
   app.get("/api/token/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       // In production, fetch token details from appropriate API based on token source
       const response: APIResponse<TokenData> = {
         success: false,
         error: "Token not found"
       };
-      
+
       res.status(404).json(response);
     } catch (error) {
       const errorResponse: APIResponse<TokenData> = {
@@ -393,7 +414,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Validate wallet address and add to tracking
       const { address, name } = req.body;
-      
+
       if (!address) {
         return res.status(400).json({
           success: false,
@@ -502,7 +523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/wallet/deposit", async (req, res) => {
     try {
       const { network, token } = req.body;
-      
+
       // In production, this would generate a real deposit address
       let address;
       if (network === 'bitcoin') {
@@ -528,7 +549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/wallet/withdraw", async (req, res) => {
     try {
       const { network, token, amount, destinationAddress } = req.body;
-      
+
       // In production, this would initiate a real withdrawal
       const transactionId = 'tx_' + Date.now().toString();
 

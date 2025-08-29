@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useOdinAPI } from '@/hooks/useOdinAPI';
 import { useAstroApeAPI } from '@/hooks/useAstroApeAPI';
 import { useTycheAPI } from '@/hooks/useTycheAPI';
+import { useKongSwapAPI } from '@/hooks/useKongSwapAPI';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,13 +15,26 @@ export default function TrendingPage() {
   const [activeTimeframe, setActiveTimeframe] = useState('1M');
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeDexes, setActiveDexes] = useState(['Odin', 'Tyche', 'KongSwap', 'AstroApe']);
   
   const { tokens: odinTokens, isLoading: odinLoading } = useOdinAPI();
   const { tokens: astroapeTokens, isLoading: astroapeLoading } = useAstroApeAPI();
   const { tokens: tycheTokens, isLoading: tycheLoading } = useTycheAPI();
+  const { tokens: kongswapTokens, isLoading: kongswapLoading } = useKongSwapAPI();
   
-  const isLoading = odinLoading || astroapeLoading || tycheLoading;
-  const allTokens = [...odinTokens, ...astroapeTokens, ...tycheTokens];
+  const isLoading = odinLoading || astroapeLoading || tycheLoading || kongswapLoading;
+  
+  // Filter tokens based on active DEXes
+  const getTokensByDex = () => {
+    let tokens = [];
+    if (activeDexes.includes('Odin')) tokens = [...tokens, ...odinTokens];
+    if (activeDexes.includes('AstroApe')) tokens = [...tokens, ...astroapeTokens];
+    if (activeDexes.includes('Tyche')) tokens = [...tokens, ...tycheTokens];
+    if (activeDexes.includes('KongSwap')) tokens = [...tokens, ...kongswapTokens];
+    return tokens;
+  };
+  
+  const allTokens = getTokensByDex();
   
   const filteredTokens = allTokens.filter(token =>
     token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -28,6 +42,15 @@ export default function TrendingPage() {
   );
 
   const timeframes = ['1M', '5M', '30M', '1H'];
+  const dexes = ['Odin', 'Tyche', 'KongSwap', 'AstroApe'];
+  
+  const toggleDex = (dex: string) => {
+    setActiveDexes(prev => 
+      prev.includes(dex) 
+        ? prev.filter(d => d !== dex)
+        : [...prev, dex]
+    );
+  };
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="page-trending">
@@ -59,13 +82,29 @@ export default function TrendingPage() {
             ))}
           </div>
 
-          {/* Exchange Filter */}
-          <div className="flex items-center space-x-2 bg-surface rounded-lg px-3 py-2">
-            <TrendingUp className="text-accent text-sm" />
-            <span className="text-sm font-medium text-foreground">Dexes</span>
-            <span className="bg-accent text-accent-foreground text-xs px-2 py-1 rounded-full" data-testid="text-active-exchanges">
-              3
-            </span>
+          {/* DEX Filter Toggles */}
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 bg-surface rounded-lg px-3 py-2">
+              <TrendingUp className="text-accent text-sm" />
+              <span className="text-sm font-medium text-foreground">Dexes</span>
+              <span className="bg-accent text-accent-foreground text-xs px-2 py-1 rounded-full" data-testid="text-active-exchanges">
+                {activeDexes.length}
+              </span>
+            </div>
+            <div className="flex space-x-1">
+              {dexes.map((dex) => (
+                <Button
+                  key={dex}
+                  size="sm"
+                  variant={activeDexes.includes(dex) ? "default" : "outline"}
+                  onClick={() => toggleDex(dex)}
+                  className="text-xs"
+                  data-testid={`button-dex-${dex.toLowerCase()}`}
+                >
+                  {dex}
+                </Button>
+              ))}
+            </div>
           </div>
 
           {/* Additional Filters */}
