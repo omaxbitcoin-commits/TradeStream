@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import React, { useState, useEffect } from 'react';
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Header } from "@/components/common/Header";
 import { Footer } from "@/components/common/Footer";
 import { MobileNavigation } from "@/components/common/MobileNavigation";
+import { Diamond } from 'lucide-react';
 import TrendingPage from "@/pages/TrendingPage";
 import TrenchesPage from "@/pages/TrenchesPage";
 import TokenPage from "@/pages/TokenPage";
@@ -18,6 +19,17 @@ import WalletManagerPage from "@/pages/WalletManagerPage";
 import SniperPage from "@/pages/SniperPage";
 import ComingSoonPage from "@/pages/ComingSoonPage";
 import NotFound from "@/pages/not-found";
+
+function LoadingScreen() {
+  return (
+    <div className="loading-screen">
+      <div className="flex items-center">
+        <Diamond className="loading-logo" size={48} />
+        <span className="loading-text">OMAX</span>
+      </div>
+    </div>
+  );
+}
 
 function Router() {
   return (
@@ -43,16 +55,44 @@ function Router() {
 }
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Show loading screen for 2 seconds
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      // Remove loading screen from DOM after fade animation
+      setTimeout(() => {
+        const loadingElement = document.querySelector('.loading-screen');
+        if (loadingElement) {
+          loadingElement.remove();
+        }
+      }, 500);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const loadingElement = document.querySelector('.loading-screen');
+      if (loadingElement) {
+        loadingElement.classList.add('fade-out');
+      }
+    }
+  }, [isLoading]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <LanguageProvider>
-          <TooltipProvider>
-            <div className="min-h-screen bg-background text-foreground transition-colors">
-              <Toaster />
-              <Router />
-            </div>
-          </TooltipProvider>
+          {isLoading && <LoadingScreen />}
+          <div className="min-h-screen bg-background text-foreground transition-colors">
+            <Header />
+            <Router />
+            <MobileNavigation />
+          </div>
+          <Toaster />
         </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
