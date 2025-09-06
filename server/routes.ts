@@ -254,15 +254,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: "tyche-1",
           name: "Tyche Token",
           symbol: "TYCHE",
-          price: "$0.892K",
-          marketCap: "$8.92K",
+          contractAddress: "0x1a123456789a123456789a123456789a123456789",
+          price: "0.00892",
+          marketCap: "892.0K",
+          volume24h: "214.0K",
           change5m: "+12.3%",
           change1h: "+18.7%",
           change6h: "+25.1%",
           change24h: "+31.4%",
-          volume24h: "$2.14K",
-          age: "2 days ago",
           holders: 456,
+          liquidity: "134.5K",
+          age: "2 days ago",
+          isBundled: false,
+          isVerified: true,
+          category: "graduated",
           avatar: "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=40&h=40&fit=crop"
         },
         {
@@ -364,20 +369,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // KongSwap API
   app.get('/api/kongswap/tokens', (req, res) => {
-    const mockTokens = [
+    const mockTokens: TokenData[] = [
       {
         id: 'kongswap-1',
         name: 'Kong Token',
         symbol: 'KONG',
-        price: '$1.234K',
-        marketCap: '$12.34K',
+        contractAddress: '0x1b123456789b123456789b123456789b123456789',
+        price: '0.01234',
+        marketCap: '1234.0K',
+        volume24h: '345.0K',
         change5m: '+8.9%',
         change1h: '+14.2%',
         change6h: '+19.8%',
         change24h: '+27.3%',
-        volume24h: '$3.45K',
-        age: '1 day ago',
         holders: 789,
+        liquidity: '456.7K',
+        age: '1 day ago',
+        isBundled: false,
+        isVerified: true,
+        category: 'graduated',
         avatar: "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=40&h=40&fit=crop"
       }
     ];
