@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
-import { Diamond, Search, Compass, Wallet, Settings } from 'lucide-react';
+import { Diamond, Search, Compass, Wallet, TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export function MobileNavigation() {
@@ -35,6 +35,15 @@ export function MobileNavigation() {
           </a>
         </Link>
         
+        <Link href="/prediction-markets">
+          <a className={`flex flex-col items-center justify-center transition-colors ${
+            isActive('/prediction-markets') ? 'text-accent' : 'text-muted-foreground hover:text-foreground'
+          }`} data-testid="nav-predictions">
+            <TrendingUp className="text-lg mb-1" />
+            <span className="text-xs">Predict</span>
+          </a>
+        </Link>
+        
         <Link href="/wallet">
           <a className={`flex flex-col items-center justify-center transition-colors ${
             isActive('/wallet') ? 'text-accent' : 'text-muted-foreground hover:text-foreground'
@@ -43,11 +52,6 @@ export function MobileNavigation() {
             <span className="text-xs">Wallet</span>
           </a>
         </Link>
-        
-        <button className="flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition-colors" data-testid="nav-settings">
-          <Settings className="text-lg mb-1" />
-          <span className="text-xs">Settings</span>
-        </button>
       </div>
     </nav>
   );

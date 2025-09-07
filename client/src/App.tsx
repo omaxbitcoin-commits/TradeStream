@@ -17,6 +17,8 @@ import HoldingsPage from "@/pages/HoldingsPage";
 import WalletManagerPage from "@/pages/WalletManagerPage";
 import SniperPage from "@/pages/SniperPage";
 import ComingSoonPage from "@/pages/ComingSoonPage";
+import PredictionMarketsPage from "@/pages/PredictionMarketsPage";
+import PredictionMarketDetailPage from "@/pages/PredictionMarketDetailPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -33,6 +35,8 @@ function Router() {
         <Route path="/holdings" component={HoldingsPage} />
         <Route path="/wallet-manager" component={WalletManagerPage} />
         <Route path="/sniper" component={SniperPage} />
+        <Route path="/prediction-markets" component={PredictionMarketsPage} />
+        <Route path="/prediction/:id" component={PredictionMarketDetailPage} />
         <Route path="/coming-soon" component={ComingSoonPage} />
         <Route component={NotFound} />
       </Switch>

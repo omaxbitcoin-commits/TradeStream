@@ -57,6 +57,11 @@ export function Header() {
                   {t('nav.earn')}
                 </a>
               </Link>
+              <Link href="/prediction-markets">
+                <a className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-prediction-markets">
+                  {t('nav.predictionMarkets')}
+                </a>
+              </Link>
               <a href="#" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-points">
                 {t('nav.points')}
               </a>
