@@ -195,58 +195,105 @@ export default function PredictionMarketDetailPage() {
           <MarketChart market={market} />
 
           {/* Market Description */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Info className="w-5 h-5" />
-                <span>Market Description</span>
+          <Card className="border-2 border-border/50 shadow-lg bg-gradient-to-br from-surface to-surface/80">
+            <CardHeader className="bg-gradient-to-r from-accent/5 to-accent/10 rounded-t-xl border-b border-border/30">
+              <CardTitle className="flex items-center space-x-3 text-xl">
+                <div className="p-2 rounded-lg bg-accent/10 text-accent">
+                  <Info className="w-5 h-5" />
+                </div>
+                <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                  Market Description
+                </span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-foreground leading-relaxed mb-4">
-                {market.description}
-              </p>
+            <CardContent className="p-6">
+              {/* Main Description */}
+              <div className="mb-6">
+                <div className="prose prose-slate dark:prose-invert max-w-none">
+                  <p className="text-foreground/90 leading-relaxed text-base font-normal tracking-wide">
+                    {market.description}
+                  </p>
+                </div>
+              </div>
               
-              <Separator className="my-4" />
+              <Separator className="my-6 bg-gradient-to-r from-transparent via-border to-transparent" />
               
-              <div className="space-y-3">
+              {/* Market Details Grid */}
+              <div className="space-y-6">
                 <div>
-                  <h4 className="font-medium text-foreground mb-2">Market Details</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Creator:</span>
-                      <span className="font-medium">{market.creator}</span>
+                  <h4 className="font-semibold text-foreground mb-4 flex items-center space-x-2">
+                    <div className="w-1 h-4 bg-accent rounded-full"></div>
+                    <span>Market Details</span>
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm font-medium">Creator</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-accent rounded-full"></div>
+                          <span className="font-semibold text-foreground">{market.creator}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Resolution Date:</span>
-                      <span className="font-medium">
-                        {typeof market.endDate === 'string' 
-                          ? new Date(market.endDate).toLocaleDateString()
-                          : market.endDate.toLocaleDateString()
-                        }
-                      </span>
+                    
+                    <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm font-medium">Resolution Date</span>
+                        <span className="font-semibold text-foreground">
+                          {typeof market.endDate === 'string' 
+                            ? new Date(market.endDate).toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })
+                            : market.endDate.toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })
+                          }
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Market ID:</span>
-                      <span className="font-medium font-mono text-xs">{market.id}</span>
+                    
+                    <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm font-medium">Market ID</span>
+                        <span className="font-mono text-xs font-semibold text-foreground bg-background/50 px-2 py-1 rounded">
+                          #{market.id}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Status:</span>
-                      <span className={`font-medium ${market.isActive ? 'text-success' : 'text-muted-foreground'}`}>
-                        {market.isActive ? 'Active' : 'Ended'}
-                      </span>
+                    
+                    <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm font-medium">Status</span>
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-2 h-2 rounded-full ${market.isActive ? 'bg-success animate-pulse' : 'bg-muted-foreground'}`}></div>
+                          <span className={`font-semibold ${market.isActive ? 'text-success' : 'text-muted-foreground'}`}>
+                            {market.isActive ? 'Live Trading' : 'Market Closed'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* Tags */}
+                {/* Tags Section */}
                 {market.tags.length > 0 && (
                   <div>
-                    <h4 className="font-medium text-foreground mb-2">Tags</h4>
-                    <div className="flex flex-wrap gap-2">
+                    <h4 className="font-semibold text-foreground mb-4 flex items-center space-x-2">
+                      <div className="w-1 h-4 bg-accent rounded-full"></div>
+                      <span>Related Topics</span>
+                    </h4>
+                    <div className="flex flex-wrap gap-3">
                       {market.tags.map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {tag}
+                        <Badge 
+                          key={index} 
+                          variant="secondary" 
+                          className="text-sm px-3 py-1.5 font-medium bg-gradient-to-r from-accent/10 to-accent/20 border-accent/30 text-accent hover:from-accent/20 hover:to-accent/30 transition-all duration-200"
+                        >
+                          #{tag}
                         </Badge>
                       ))}
                     </div>
