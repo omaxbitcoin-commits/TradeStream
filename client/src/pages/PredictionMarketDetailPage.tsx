@@ -26,7 +26,21 @@ export default function PredictionMarketDetailPage() {
 
   const formatTimeRemaining = (endDate: Date | string) => {
     const now = new Date();
-    const endDateObj = typeof endDate === 'string' ? new Date(endDate) : endDate;
+    let endDateObj: Date;
+    
+    if (typeof endDate === 'string') {
+      endDateObj = new Date(endDate);
+    } else if (endDate instanceof Date) {
+      endDateObj = endDate;
+    } else {
+      return 'Invalid date';
+    }
+    
+    // Check if date is valid
+    if (isNaN(endDateObj.getTime())) {
+      return 'Invalid date';
+    }
+    
     const diff = endDateObj.getTime() - now.getTime();
     if (diff <= 0) return 'Market Closed';
     
@@ -35,6 +49,17 @@ export default function PredictionMarketDetailPage() {
     
     if (days > 0) return `${days} days, ${hours} hours remaining`;
     return `${hours} hours remaining`;
+  };
+
+  const getPlaceholderImage = (category: string) => {
+    const placeholders = {
+      sports: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=300&fit=crop&auto=format',
+      crypto: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=300&fit=crop&auto=format',
+      politics: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=600&h=300&fit=crop&auto=format',
+      entertainment: 'https://images.unsplash.com/photo-1489599363715-049ef8e7e4ee?w=600&h=300&fit=crop&auto=format',
+      default: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=300&fit=crop&auto=format'
+    };
+    return placeholders[category as keyof typeof placeholders] || placeholders.default;
   };
 
   if (isLoading) {
@@ -82,9 +107,13 @@ export default function PredictionMarketDetailPage() {
           {/* Market Image */}
           <div className="flex-shrink-0 mb-4 lg:mb-0">
             <img 
-              src={market.image} 
+              src={market.image || getPlaceholderImage(market.category)} 
               alt={market.title}
               className="w-full lg:w-80 h-48 lg:h-60 object-cover rounded-xl"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = getPlaceholderImage(market.category);
+              }}
             />
           </div>
 

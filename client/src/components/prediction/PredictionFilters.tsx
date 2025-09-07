@@ -73,7 +73,7 @@ export function PredictionFilters({
   return (
     <>
       {/* Search and Filter Controls */}
-      <div className="flex items-center space-x-3 mb-6">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 text-muted-foreground w-4 h-4" />
           <Input
@@ -86,32 +86,34 @@ export function PredictionFilters({
           />
         </div>
         
-        <Button
-          variant="outline"
-          onClick={() => onClose()}
-          className="flex items-center space-x-2"
-          data-testid="button-open-prediction-filters"
-        >
-          <Filter className="w-4 h-4" />
-          <span>Filters</span>
-          {getActiveFilterCount() > 0 && (
-            <Badge variant="default" className="text-xs">
-              {getActiveFilterCount()}
-            </Badge>
-          )}
-        </Button>
+        <div className="flex items-center space-x-3">
+          <Button
+            variant="outline"
+            onClick={() => onClose()}
+            className="flex items-center space-x-2"
+            data-testid="button-open-prediction-filters"
+          >
+            <Filter className="w-4 h-4" />
+            <span className="hidden sm:inline">Filters</span>
+            {getActiveFilterCount() > 0 && (
+              <Badge variant="default" className="text-xs">
+                {getActiveFilterCount()}
+              </Badge>
+            )}
+          </Button>
 
-        <Select value={filters.sortBy} onValueChange={(value) => setFilters({ ...filters, sortBy: value })}>
-          <SelectTrigger className="w-32">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="volume">Volume</SelectItem>
-            <SelectItem value="participants">Users</SelectItem>
-            <SelectItem value="endDate">Ending Soon</SelectItem>
-            <SelectItem value="created">Newest</SelectItem>
-          </SelectContent>
-        </Select>
+          <Select value={filters.sortBy} onValueChange={(value) => setFilters({ ...filters, sortBy: value })}>
+            <SelectTrigger className="w-24 sm:w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="volume">Volume</SelectItem>
+              <SelectItem value="participants">Users</SelectItem>
+              <SelectItem value="endDate">Ending Soon</SelectItem>
+              <SelectItem value="created">Newest</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Filter Modal */}
