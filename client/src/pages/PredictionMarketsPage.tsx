@@ -3,106 +3,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { PredictionCard } from '@/components/trading/PredictionCard';
 import { CategoryTabs } from '@/components/prediction/CategoryTabs';
 import { PredictionFilters } from '@/components/prediction/PredictionFilters';
-import { PredictionMarket, PredictionCategory } from '@/types';
+import { usePredictionMarkets, usePredictionCategories } from '@/hooks/usePredictionMarketsAPI';
 import { TrendingUp, Zap, Calendar, Users } from 'lucide-react';
-
-// Sample data - this will be replaced with API calls
-const sampleCategories: PredictionCategory[] = [
-  { id: 'sports', name: 'Sports', icon: '⚽', count: 15, color: '#10b981' },
-  { id: 'politics', name: 'Politics', icon: '🏛️', count: 8, color: '#3b82f6' },
-  { id: 'crypto', name: 'Crypto', icon: '₿', count: 12, color: '#f59e0b' },
-  { id: 'tech', name: 'Technology', icon: '💻', count: 6, color: '#8b5cf6' },
-  { id: 'entertainment', name: 'Entertainment', icon: '🎬', count: 9, color: '#ef4444' },
-  { id: 'economy', name: 'Economy', icon: '📈', count: 4, color: '#06b6d4' },
-];
-
-const sampleMarkets: PredictionMarket[] = [
-  {
-    id: '1',
-    title: '2025 US Open Winner (M)',
-    description: 'Who will win the 2025 US Open Men\'s Singles Championship?',
-    image: '/attached_assets/4efa8902-d287-4d3b-8bc0-9c8d8122160f_1757244824549.png',
-    category: 'sports',
-    endDate: new Date('2025-09-15'),
-    totalVolume: '1.2M',
-    totalVolumeUSD: '$1.2M',
-    totalVolumeSats: '1.8M sats',
-    participants: 1247,
-    options: [
-      { id: '1a', label: 'Novak Djokovic', odds: 2.1, percentage: 49, volume: '$589K', color: '#10b981' },
-      { id: '1b', label: 'Carlos Alcaraz', odds: 2.3, percentage: 38, volume: '$456K', color: '#ef4444' },
-      { id: '1c', label: 'Other', odds: 8.5, percentage: 13, volume: '$155K', color: '#6b7280' }
-    ],
-    isActive: true,
-    creator: 'sportsbet_pro',
-    featured: true,
-    tags: ['Tennis', 'Grand Slam', 'ATP']
-  },
-  {
-    id: '2',
-    title: 'Bitcoin close price on Sep 30th',
-    description: 'What will be the Bitcoin closing price on September 30th, 2025?',
-    image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
-    category: 'crypto',
-    endDate: new Date('2025-09-30'),
-    totalVolume: '950K',
-    totalVolumeUSD: '$950K',
-    totalVolumeSats: '1.4M sats',
-    participants: 892,
-    options: [
-      { id: '2a', label: '$110,000 - $112,249', odds: 4.0, percentage: 25, volume: '$237K', color: '#10b981' },
-      { id: '2b', label: '$112,250 - $112,500', odds: 4.3, percentage: 23, volume: '$218K', color: '#ef4444' },
-      { id: '2c', label: '$112,500+', odds: 4.8, percentage: 21, volume: '$199K', color: '#f59e0b' },
-      { id: '2d', label: 'Other Range', odds: 3.2, percentage: 31, volume: '$296K', color: '#6b7280' }
-    ],
-    isActive: true,
-    creator: 'crypto_analyst',
-    featured: false,
-    tags: ['Bitcoin', 'Price Prediction', 'BTC']
-  },
-  {
-    id: '3',
-    title: 'BAL Ravens vs BUF Bills (Sep 7): Ravens win?',
-    description: 'Will the Baltimore Ravens win against Buffalo Bills on September 7th?',
-    image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
-    category: 'sports',
-    endDate: new Date('2025-09-07'),
-    totalVolume: '680K',
-    totalVolumeUSD: '$680K',
-    totalVolumeSats: '1.02M sats',
-    participants: 634,
-    options: [
-      { id: '3a', label: 'Yes', odds: 1.85, percentage: 53, volume: '$360K', color: '#10b981' },
-      { id: '3b', label: 'No', odds: 2.1, percentage: 47, volume: '$320K', color: '#ef4444' }
-    ],
-    isActive: true,
-    creator: 'nfl_predictor',
-    featured: false,
-    tags: ['NFL', 'Ravens', 'Bills']
-  },
-  {
-    id: '4',
-    title: 'Grey Cup Winner 2025',
-    description: 'Which team will win the 2025 Grey Cup Championship?',
-    image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
-    category: 'sports',
-    endDate: new Date('2025-11-23'),
-    totalVolume: '420K',
-    totalVolumeUSD: '$420K',
-    totalVolumeSats: '630K sats',
-    participants: 387,
-    options: [
-      { id: '4a', label: 'Calgary Stampeders', odds: 3.4, percentage: 29, volume: '$122K', color: '#dc2626' },
-      { id: '4b', label: 'Saskatchewan Roughriders', odds: 4.1, percentage: 22, volume: '$92K', color: '#10b981' },
-      { id: '4c', label: 'Montreal Alouettes', odds: 8.3, percentage: 12, volume: '$50K', color: '#3b82f6' },
-      { id: '4d', label: 'Other Team', odds: 2.1, percentage: 37, volume: '$156K', color: '#6b7280' }
-    ],
-    isActive: true,
-    creator: 'cfl_fan',
-    featured: false,
-    tags: ['CFL', 'Grey Cup', 'Canadian Football']
-  }
-];
 
 export default function PredictionMarketsPage() {
   const { t } = useLanguage();
@@ -111,8 +13,12 @@ export default function PredictionMarketsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({});
 
+  // Fetch data from API
+  const { data: markets = [], isLoading: marketsLoading, error: marketsError } = usePredictionMarkets();
+  const { data: categories = [], isLoading: categoriesLoading } = usePredictionCategories();
+
   // Filter markets based on category and search
-  const filteredMarkets = sampleMarkets.filter(market => {
+  const filteredMarkets = markets.filter(market => {
     const matchesCategory = activeCategory === 'all' || market.category === activeCategory;
     const matchesSearch = market.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          market.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -120,6 +26,8 @@ export default function PredictionMarketsPage() {
     
     return matchesCategory && matchesSearch;
   });
+
+  const isLoading = marketsLoading || categoriesLoading;
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="page-prediction-markets">
@@ -148,7 +56,7 @@ export default function PredictionMarketsPage() {
             <Zap className="w-4 h-4 text-warning" />
             <span className="text-sm text-muted-foreground">Active Markets</span>
           </div>
-          <div className="font-bold text-lg text-foreground">{sampleMarkets.filter(m => m.isActive).length}</div>
+          <div className="font-bold text-lg text-foreground">{markets.filter(m => m.isActive).length}</div>
         </div>
         
         <div className="bg-surface border border-border rounded-lg p-4">
@@ -157,7 +65,7 @@ export default function PredictionMarketsPage() {
             <span className="text-sm text-muted-foreground">Participants</span>
           </div>
           <div className="font-bold text-lg text-foreground">
-            {sampleMarkets.reduce((sum, m) => sum + m.participants, 0).toLocaleString()}
+            {markets.reduce((sum, m) => sum + m.participants, 0).toLocaleString()}
           </div>
         </div>
         
@@ -171,13 +79,15 @@ export default function PredictionMarketsPage() {
       </div>
 
       {/* Categories */}
-      <div className="mb-6">
-        <CategoryTabs
-          categories={sampleCategories}
-          activeCategory={activeCategory}
-          onCategoryChange={setActiveCategory}
-        />
-      </div>
+      {!categoriesLoading && categories.length > 0 && (
+        <div className="mb-6">
+          <CategoryTabs
+            categories={categories}
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+          />
+        </div>
+      )}
 
       {/* Filters */}
       <PredictionFilters
@@ -193,14 +103,27 @@ export default function PredictionMarketsPage() {
       <div className="mb-4">
         <p className="text-sm text-muted-foreground">
           Showing {filteredMarkets.length} prediction markets
-          {activeCategory !== 'all' && ` in ${sampleCategories.find(c => c.id === activeCategory)?.name}`}
+          {activeCategory !== 'all' && ` in ${categories.find(c => c.id === activeCategory)?.name}`}
           {searchTerm && ` matching "${searchTerm}"`}
         </p>
       </div>
 
       {/* Markets Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredMarkets.length === 0 ? (
+        {isLoading ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading prediction markets...</p>
+          </div>
+        ) : marketsError ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-12">
+            <TrendingUp className="w-16 h-16 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">Error Loading Markets</h3>
+            <p className="text-muted-foreground text-center">
+              Failed to load prediction markets. Please try again later.
+            </p>
+          </div>
+        ) : filteredMarkets.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12">
             <TrendingUp className="w-16 h-16 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">No Markets Found</h3>
