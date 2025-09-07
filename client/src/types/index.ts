@@ -63,7 +63,7 @@ export interface PredictionMarket {
   description: string;
   image: string;
   category: string;
-  endDate: Date;
+  endDate: Date | string;
   totalVolume: string;
   totalVolumeUSD: string;
   totalVolumeSats: string;

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useRoute } from 'wouter';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PredictionMarket, PredictionOption } from '@/types';
+import { usePredictionMarket } from '@/hooks/usePredictionMarketsAPI';
 import { BettingInterface } from '@/components/prediction/BettingInterface';
 import { MarketChat } from '@/components/prediction/MarketChat';
 import { MarketChart } from '@/components/prediction/MarketChart';
@@ -12,28 +13,6 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Share, Clock, Users, DollarSign, Bitcoin, TrendingUp, Calendar, Info } from 'lucide-react';
 import { Link } from 'wouter';
 
-// Sample market data (in a real app, this would be fetched based on the ID)
-const sampleMarket: PredictionMarket = {
-  id: '1',
-  title: '2025 US Open Winner (M)',
-  description: 'This market will resolve to the player that wins the 2025 US Open Men\'s Singles Tournament. Otherwise, this market will resolve to "No" if listed player wins the 2025 US Open Men\'s Singles Tournament. The primary resolution source will be official information from the US Open organization and other authoritative sources concerning how event occurs.',
-  image: '/attached_assets/4efa8902-d287-4d3b-8bc0-9c8d8122160f_1757244824549.png',
-  category: 'sports',
-  endDate: new Date('2025-09-15'),
-  totalVolume: '1.2M',
-  totalVolumeUSD: '$1.2M',
-  totalVolumeSats: '1.8M sats',
-  participants: 1247,
-  options: [
-    { id: '1a', label: 'Novak Djokovic', odds: 2.1, percentage: 49, volume: '$589K', color: '#10b981' },
-    { id: '1b', label: 'Carlos Alcaraz', odds: 2.3, percentage: 38, volume: '$456K', color: '#ef4444' },
-    { id: '1c', label: 'Other Player', odds: 8.5, percentage: 13, volume: '$155K', color: '#6b7280' }
-  ],
-  isActive: true,
-  creator: 'sportsbet_pro',
-  featured: true,
-  tags: ['Tennis', 'Grand Slam', 'ATP']
-};
 
 export default function PredictionMarketDetailPage() {
   const { t } = useLanguage();
@@ -41,12 +20,14 @@ export default function PredictionMarketDetailPage() {
   const [selectedOption, setSelectedOption] = useState<PredictionOption | undefined>();
   
   const marketId = params?.id || '1';
-  // In a real app, you would fetch the market data based on the ID
-  const market = sampleMarket;
+  
+  // Fetch market data from API
+  const { data: market, isLoading, error } = usePredictionMarket(marketId);
 
-  const formatTimeRemaining = (endDate: Date) => {
+  const formatTimeRemaining = (endDate: Date | string) => {
     const now = new Date();
-    const diff = endDate.getTime() - now.getTime();
+    const endDateObj = typeof endDate === 'string' ? new Date(endDate) : endDate;
+    const diff = endDateObj.getTime() - now.getTime();
     if (diff <= 0) return 'Market Closed';
     
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -55,6 +36,33 @@ export default function PredictionMarketDetailPage() {
     if (days > 0) return `${days} days, ${hours} hours remaining`;
     return `${hours} hours remaining`;
   };
+
+  if (isLoading) {
+    return (
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="page-prediction-detail">
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading prediction market...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !market) {
+    return (
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="page-prediction-detail">
+        <div className="flex flex-col items-center justify-center py-12">
+          <h3 className="text-lg font-medium text-foreground mb-2">Market Not Found</h3>
+          <p className="text-muted-foreground text-center mb-4">
+            The prediction market you're looking for could not be found.
+          </p>
+          <Link href="/prediction-markets">
+            <Button>Back to Markets</Button>
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="page-prediction-detail">
@@ -182,7 +190,12 @@ export default function PredictionMarketDetailPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Resolution Date:</span>
-                      <span className="font-medium">{market.endDate.toLocaleDateString()}</span>
+                      <span className="font-medium">
+                        {typeof market.endDate === 'string' 
+                          ? new Date(market.endDate).toLocaleDateString()
+                          : market.endDate.toLocaleDateString()
+                        }
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Market ID:</span>

@@ -14,9 +14,10 @@ interface PredictionCardProps {
 export function PredictionCard({ market, showFull = false }: PredictionCardProps) {
   const { t } = useLanguage();
   
-  const formatTimeRemaining = (endDate: Date) => {
+  const formatTimeRemaining = (endDate: Date | string) => {
     const now = new Date();
-    const diff = endDate.getTime() - now.getTime();
+    const endDateObj = typeof endDate === 'string' ? new Date(endDate) : endDate;
+    const diff = endDateObj.getTime() - now.getTime();
     if (diff <= 0) return 'Ended';
     
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
