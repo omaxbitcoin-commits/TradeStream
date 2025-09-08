@@ -76,6 +76,49 @@ export const insertTradeSchema = createInsertSchema(trades).omit({
   timestamp: true,
 });
 
+export const predictionMarkets = pgTable("prediction_markets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  image: text("image"),
+  category: text("category").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  totalVolume: decimal("total_volume", { precision: 18, scale: 2 }).default("0"),
+  totalVolumeUSD: decimal("total_volume_usd", { precision: 18, scale: 2 }).default("0"),
+  totalVolumeSats: decimal("total_volume_sats", { precision: 18, scale: 0 }).default("0"),
+  participants: integer("participants").default(0),
+  isActive: boolean("is_active").default(true),
+  creator: text("creator").notNull(),
+  featured: boolean("featured").default(false),
+  tags: text("tags").array().default([]),
+  resolutionLink: text("resolution_link"),
+  predictionType: text("prediction_type").notNull(), // 'single' or 'double'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const predictionOptions = pgTable("prediction_options", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  marketId: varchar("market_id").references(() => predictionMarkets.id).notNull(),
+  label: text("label").notNull(),
+  odds: decimal("odds", { precision: 10, scale: 2 }).default("1.0"),
+  percentage: decimal("percentage", { precision: 5, scale: 2 }).default("0"),
+  volume: decimal("volume", { precision: 18, scale: 2 }).default("0"),
+  color: text("color").default("#10b981"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertPredictionMarketSchema = createInsertSchema(predictionMarkets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPredictionOptionSchema = createInsertSchema(predictionOptions).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertToken = z.infer<typeof insertTokenSchema>;
@@ -84,3 +127,7 @@ export type InsertWallet = z.infer<typeof insertWalletSchema>;
 export type Wallet = typeof wallets.$inferSelect;
 export type InsertTrade = z.infer<typeof insertTradeSchema>;
 export type Trade = typeof trades.$inferSelect;
+export type InsertPredictionMarket = z.infer<typeof insertPredictionMarketSchema>;
+export type PredictionMarket = typeof predictionMarkets.$inferSelect;
+export type InsertPredictionOption = z.infer<typeof insertPredictionOptionSchema>;
+export type PredictionOption = typeof predictionOptions.$inferSelect;

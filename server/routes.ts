@@ -751,6 +751,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create prediction market endpoint
+  app.post("/api/prediction-markets", async (req, res) => {
+    try {
+      const { title, description, category, endDate, resolutionLink, predictionType, options, tags, image, creator } = req.body;
+
+      // Validate required fields
+      if (!title || !description || !category || !endDate || !resolutionLink || !predictionType || !options || !creator) {
+        return res.status(400).json({
+          success: false,
+          error: "Missing required fields"
+        });
+      }
+
+      // Validate prediction type
+      if (!['single', 'double'].includes(predictionType)) {
+        return res.status(400).json({
+          success: false,
+          error: "Prediction type must be either 'single' or 'double'"
+        });
+      }
+
+      // Validate options based on prediction type
+      if (predictionType === 'single' && options.length !== 1) {
+        return res.status(400).json({
+          success: false,
+          error: "Single predictions must have exactly 1 option"
+        });
+      }
+
+      if (predictionType === 'double' && options.length !== 2) {
+        return res.status(400).json({
+          success: false,
+          error: "Double predictions must have exactly 2 options"
+        });
+      }
+
+      // In production, this would save to database
+      const newMarket: PredictionMarket = {
+        id: Date.now().toString(),
+        title,
+        description,
+        image: image || '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
+        category,
+        endDate: new Date(endDate),
+        totalVolume: '0',
+        totalVolumeUSD: '$0',
+        totalVolumeSats: '0 sats',
+        participants: 0,
+        options: options.map((option: any, index: number) => ({
+          id: `${Date.now()}-${index}`,
+          label: option.label,
+          odds: option.odds || (predictionType === 'double' ? 2.0 : 1.0),
+          percentage: predictionType === 'double' ? 50 : 100,
+          volume: '$0',
+          color: predictionType === 'double' ? (index === 0 ? '#10b981' : '#ef4444') : '#10b981'
+        })),
+        isActive: true,
+        creator,
+        featured: false,
+        tags: tags || []
+      };
+
+      const response: APIResponse<PredictionMarket> = {
+        success: true,
+        data: newMarket
+      };
+
+      res.json(response);
+    } catch (error) {
+      const errorResponse: APIResponse<PredictionMarket> = {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to create prediction market"
+      };
+      res.status(500).json(errorResponse);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
