@@ -583,125 +583,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sampleMarkets: PredictionMarket[] = [
         {
           id: '1',
-          title: 'Will Bitcoin reach $120K before 2025 ends?',
-          description: 'This binary prediction market resolves to YES if Bitcoin (BTC) reaches or exceeds $120,000 USD at any point before December 31, 2025. Price will be determined by CoinGecko API data.',
+          title: '2025 US Open Winner (M)',
+          description: 'Who will win the 2025 US Open Men\'s Singles Championship?',
           image: '/attached_assets/4efa8902-d287-4d3b-8bc0-9c8d8122160f_1757244824549.png',
-          category: 'crypto',
-          endDate: new Date('2025-12-31'),
-          expirationTime: new Date('2025-12-31'),
-          resolutionLink: 'https://coingecko.com/en/coins/bitcoin',
-          resolutionDescription: 'Official resolution source: CoinGecko Bitcoin price data. Must reach $120,000 or higher.',
-          predictionType: 'binary' as const,
-          totalVolume: '2.4M',
-          totalVolumeUSD: '$2.4M',
-          totalVolumeSats: '3.6M sats',
-          participants: 1847,
+          category: 'sports',
+          endDate: new Date('2025-09-15'),
+          totalVolume: '1.2M',
+          totalVolumeUSD: '$1.2M',
+          totalVolumeSats: '1.8M sats',
+          participants: 1247,
           options: [
-            { id: '1a', label: 'Yes', odds: 1.8, percentage: 56, volume: '$1.34M', color: '#10b981', ledgerId: 'ledger_btc_yes' },
-            { id: '1b', label: 'No', odds: 2.2, percentage: 44, volume: '$1.06M', color: '#ef4444', ledgerId: 'ledger_btc_no' }
+            { id: '1a', label: 'Novak Djokovic', odds: 2.1, percentage: 49, volume: '$589K', color: '#10b981' },
+            { id: '1b', label: 'Carlos Alcaraz', odds: 2.3, percentage: 38, volume: '$456K', color: '#ef4444' },
+            { id: '1c', label: 'Other', odds: 8.5, percentage: 13, volume: '$155K', color: '#6b7280' }
           ],
           isActive: true,
-          creator: 'crypto_analyst',
+          creator: 'sportsbet_pro',
           featured: true,
-          tags: ['Bitcoin', 'BTC', 'Price Prediction', 'Crypto']
+          tags: ['Tennis', 'Grand Slam', 'ATP']
         },
         {
           id: '2',
-          title: 'Who will win the 2025 World Cup?',
-          description: 'Multiple choice prediction for the 2025 FIFA World Cup winner. This market will resolve based on the official FIFA tournament results.',
+          title: 'Bitcoin close price on Sep 30th',
+          description: 'What will be the Bitcoin closing price on September 30th, 2025?',
           image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
-          category: 'sports',
-          endDate: new Date('2025-06-15'),
-          expirationTime: new Date('2025-07-15'),
-          resolutionLink: 'https://fifa.com/worldcup',
-          resolutionDescription: 'Winner determined by official FIFA World Cup 2025 final match results.',
-          predictionType: 'multiple' as const,
-          totalVolume: '1.8M',
-          totalVolumeUSD: '$1.8M',
-          totalVolumeSats: '2.7M sats',
-          participants: 1342,
+          category: 'crypto',
+          endDate: new Date('2025-09-30'),
+          totalVolume: '950K',
+          totalVolumeUSD: '$950K',
+          totalVolumeSats: '1.4M sats',
+          participants: 892,
           options: [
-            { id: '2a', label: 'Brazil', odds: 3.2, percentage: 32, volume: '$576K', color: '#10b981', ledgerId: 'ledger_brazil' },
-            { id: '2b', label: 'Argentina', odds: 3.8, percentage: 28, volume: '$504K', color: '#ef4444', ledgerId: 'ledger_argentina' },
-            { id: '2c', label: 'France', odds: 4.5, percentage: 22, volume: '$396K', color: '#f59e0b', ledgerId: 'ledger_france' },
-            { id: '2d', label: 'Other Team', odds: 6.2, percentage: 18, volume: '$324K', color: '#8b5cf6', ledgerId: 'ledger_other' }
+            { id: '2a', label: '$110,000 - $112,249', odds: 4.0, percentage: 25, volume: '$237K', color: '#10b981' },
+            { id: '2b', label: '$112,250 - $112,500', odds: 4.3, percentage: 23, volume: '$218K', color: '#ef4444' },
+            { id: '2c', label: '$112,500+', odds: 4.8, percentage: 21, volume: '$199K', color: '#f59e0b' },
+            { id: '2d', label: 'Other Range', odds: 3.2, percentage: 31, volume: '$296K', color: '#6b7280' }
           ],
           isActive: true,
-          creator: 'sports_expert',
-          featured: true,
-          tags: ['World Cup', 'FIFA', 'Soccer', 'Football']
+          creator: 'crypto_analyst',
+          featured: false,
+          tags: ['Bitcoin', 'Price Prediction', 'BTC']
         },
         {
           id: '3',
-          title: 'Premier League Teams to Qualify for Champions League',
-          description: 'Compound prediction: Which Premier League teams will finish in the top 4 (Champions League qualification) this season? Each team has Yes/No sub-predictions.',
+          title: 'BAL Ravens vs BUF Bills (Sep 7): Ravens win?',
+          description: 'Will the Baltimore Ravens win against Buffalo Bills on September 7th?',
           image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
           category: 'sports',
-          endDate: new Date('2025-05-20'),
-          expirationTime: new Date('2025-05-25'),
-          resolutionLink: 'https://premierleague.com/tables',
-          resolutionDescription: 'Teams finishing in positions 1-4 of the Premier League table qualify for Champions League.',
-          predictionType: 'compound' as const,
-          totalVolume: '1.1M',
-          totalVolumeUSD: '$1.1M',
-          totalVolumeSats: '1.65M sats',
-          participants: 987,
+          endDate: new Date('2025-09-07'),
+          totalVolume: '680K',
+          totalVolumeUSD: '$680K',
+          totalVolumeSats: '1.02M sats',
+          participants: 634,
           options: [
-            { 
-              id: '3a', 
-              label: 'Manchester City', 
-              odds: 1.2, 
-              percentage: 85, 
-              volume: '$340K', 
-              color: '#6AB7FF',
-              ledgerId: 'ledger_mancity',
-              subOptions: [
-                { id: '3a1', label: 'Yes', odds: 1.2, percentage: 85, volume: '$289K', color: '#10b981', ledgerId: 'ledger_mancity_yes' },
-                { id: '3a2', label: 'No', odds: 5.7, percentage: 15, volume: '$51K', color: '#ef4444', ledgerId: 'ledger_mancity_no' }
-              ]
-            },
-            { 
-              id: '3b', 
-              label: 'Arsenal', 
-              odds: 1.8, 
-              percentage: 72, 
-              volume: '$290K', 
-              color: '#FF6B6B',
-              ledgerId: 'ledger_arsenal',
-              subOptions: [
-                { id: '3b1', label: 'Yes', odds: 1.8, percentage: 72, volume: '$209K', color: '#10b981', ledgerId: 'ledger_arsenal_yes' },
-                { id: '3b2', label: 'No', odds: 3.6, percentage: 28, volume: '$81K', color: '#ef4444', ledgerId: 'ledger_arsenal_no' }
-              ]
-            }
+            { id: '3a', label: 'Yes', odds: 1.85, percentage: 53, volume: '$360K', color: '#10b981' },
+            { id: '3b', label: 'No', odds: 2.1, percentage: 47, volume: '$320K', color: '#ef4444' }
           ],
           isActive: true,
-          creator: 'premier_league_expert',
-          featured: true,
-          tags: ['Premier League', 'Champions League', 'Football', 'EPL']
+          creator: 'nfl_predictor',
+          featured: false,
+          tags: ['NFL', 'Ravens', 'Bills']
         },
         {
           id: '4',
-          title: 'Will Tesla stock reach $500 by Q2 2025?',
-          description: 'Binary prediction on whether Tesla (TSLA) stock price will reach or exceed $500 per share during Q2 2025 (April-June). Price determined by NASDAQ closing prices.',
+          title: 'Grey Cup Winner 2025',
+          description: 'Which team will win the 2025 Grey Cup Championship?',
           image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
-          category: 'economy',
-          endDate: new Date('2025-06-30'),
-          expirationTime: new Date('2025-06-30'),
-          resolutionLink: 'https://nasdaq.com/market-activity/stocks/tsla',
-          resolutionDescription: 'Stock must reach $500 or higher during market hours in Q2 2025 based on NASDAQ official data.',
-          predictionType: 'binary' as const,
-          totalVolume: '890K',
-          totalVolumeUSD: '$890K',
-          totalVolumeSats: '1.34M sats',
-          participants: 756,
+          category: 'sports',
+          endDate: new Date('2025-11-23'),
+          totalVolume: '420K',
+          totalVolumeUSD: '$420K',
+          totalVolumeSats: '630K sats',
+          participants: 387,
           options: [
-            { id: '4a', label: 'Yes', odds: 2.8, percentage: 36, volume: '$320K', color: '#10b981', ledgerId: 'ledger_tsla_yes' },
-            { id: '4b', label: 'No', odds: 1.6, percentage: 64, volume: '$570K', color: '#ef4444', ledgerId: 'ledger_tsla_no' }
+            { id: '4a', label: 'Calgary Stampeders', odds: 3.4, percentage: 29, volume: '$122K', color: '#dc2626' },
+            { id: '4b', label: 'Saskatchewan Roughriders', odds: 4.1, percentage: 22, volume: '$92K', color: '#10b981' },
+            { id: '4c', label: 'Montreal Alouettes', odds: 8.3, percentage: 12, volume: '$50K', color: '#3b82f6' },
+            { id: '4d', label: 'Other Team', odds: 2.1, percentage: 37, volume: '$156K', color: '#6b7280' }
           ],
           isActive: true,
-          creator: 'stock_trader',
+          creator: 'cfl_fan',
           featured: false,
-          tags: ['Tesla', 'TSLA', 'Stock Market', 'Q2 2025']
+          tags: ['CFL', 'Grey Cup', 'Canadian Football']
         }
       ];
 
@@ -753,27 +716,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // In production, fetch from database
       const sampleMarket: PredictionMarket = {
         id: '1',
-        title: 'Will Bitcoin reach $120K before 2025 ends?',
-        description: 'This binary prediction market resolves to YES if Bitcoin (BTC) reaches or exceeds $120,000 USD at any point before December 31, 2025. Price will be determined by CoinGecko API data. The market uses ICRC-2 ledgers for YES and NO positions.',
+        title: '2025 US Open Winner (M)',
+        description: 'This market will resolve to the player that wins the 2025 US Open Men\'s Singles Tournament. Otherwise, this market will resolve to "No" if listed player wins the 2025 US Open Men\'s Singles Tournament. The primary resolution source will be official information from the US Open organization and other authoritative sources concerning how event occurs.',
         image: '/attached_assets/4efa8902-d287-4d3b-8bc0-9c8d8122160f_1757244824549.png',
-        category: 'crypto',
-        endDate: new Date('2025-12-31'),
-        expirationTime: new Date('2025-12-31'),
-        resolutionLink: 'https://coingecko.com/en/coins/bitcoin',
-        resolutionDescription: 'Official resolution source: CoinGecko Bitcoin price data. Must reach $120,000 or higher at any point during 2025.',
-        predictionType: 'binary' as const,
-        totalVolume: '2.4M',
-        totalVolumeUSD: '$2.4M',
-        totalVolumeSats: '3.6M sats',
-        participants: 1847,
+        category: 'sports',
+        endDate: new Date('2025-09-15'),
+        totalVolume: '1.2M',
+        totalVolumeUSD: '$1.2M',
+        totalVolumeSats: '1.8M sats',
+        participants: 1247,
         options: [
-          { id: '1a', label: 'Yes', odds: 1.8, percentage: 56, volume: '$1.34M', color: '#10b981', ledgerId: 'ledger_btc_yes' },
-          { id: '1b', label: 'No', odds: 2.2, percentage: 44, volume: '$1.06M', color: '#ef4444', ledgerId: 'ledger_btc_no' }
+          { id: '1a', label: 'Novak Djokovic', odds: 2.1, percentage: 49, volume: '$589K', color: '#10b981' },
+          { id: '1b', label: 'Carlos Alcaraz', odds: 2.3, percentage: 38, volume: '$456K', color: '#ef4444' },
+          { id: '1c', label: 'Other Player', odds: 8.5, percentage: 13, volume: '$155K', color: '#6b7280' }
         ],
         isActive: true,
-        creator: 'crypto_analyst',
+        creator: 'sportsbet_pro',
         featured: true,
-        tags: ['Bitcoin', 'BTC', 'Price Prediction', 'Crypto']
+        tags: ['Tennis', 'Grand Slam', 'ATP']
       };
 
       const response: APIResponse<PredictionMarket> = {
@@ -794,10 +754,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create prediction market endpoint
   app.post("/api/prediction-markets", async (req, res) => {
     try {
-      const { title, description, category, endDate, expirationTime, resolutionLink, resolutionDescription, predictionType, options, tags, imageUrl, creator } = req.body;
+      const { title, description, category, endDate, resolutionLink, predictionType, options, tags, image, creator } = req.body;
 
       // Validate required fields
-      if (!title || !description || !category || !endDate || !expirationTime || !resolutionLink || !predictionType || !options || !creator) {
+      if (!title || !description || !category || !endDate || !resolutionLink || !predictionType || !options || !creator) {
         return res.status(400).json({
           success: false,
           error: "Missing required fields"
@@ -805,25 +765,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Validate prediction type
-      if (!['binary', 'multiple', 'compound'].includes(predictionType)) {
+      if (!['single', 'double'].includes(predictionType)) {
         return res.status(400).json({
           success: false,
-          error: "Prediction type must be 'binary', 'multiple', or 'compound'"
+          error: "Prediction type must be either 'single' or 'double'"
         });
       }
 
       // Validate options based on prediction type
-      if (predictionType === 'binary' && options.length !== 2) {
+      if (predictionType === 'single' && options.length !== 1) {
         return res.status(400).json({
           success: false,
-          error: "Binary predictions must have exactly 2 options"
+          error: "Single predictions must have exactly 1 option"
         });
       }
 
-      if (predictionType === 'multiple' && options.length < 2) {
+      if (predictionType === 'double' && options.length !== 2) {
         return res.status(400).json({
           success: false,
-          error: "Multiple choice predictions must have at least 2 options"
+          error: "Double predictions must have exactly 2 options"
         });
       }
 
@@ -832,11 +792,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: Date.now().toString(),
         title,
         description,
-        image: imageUrl || '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
-        expirationTime: new Date(expirationTime),
-        resolutionLink,
-        resolutionDescription,
-        predictionType,
+        image: image || '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
         category,
         endDate: new Date(endDate),
         totalVolume: '0',
@@ -846,21 +802,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         options: options.map((option: any, index: number) => ({
           id: `${Date.now()}-${index}`,
           label: option.label,
-          odds: option.odds || (predictionType === 'binary' ? 2.0 : (100 / options.length)),
-          percentage: predictionType === 'binary' ? 50 : (100 / options.length),
+          odds: option.odds || (predictionType === 'double' ? 2.0 : 1.0),
+          percentage: predictionType === 'double' ? 50 : 100,
           volume: '$0',
-          color: predictionType === 'binary' ? (index === 0 ? '#10b981' : '#ef4444') : 
-                 predictionType === 'multiple' ? [`#10b981`, `#ef4444`, `#f59e0b`, `#8b5cf6`, `#06b6d4`][index % 5] : '#10b981',
-          ledgerId: `ledger_${Date.now()}_${index}`,
-          subOptions: option.subOptions?.map((subOpt: any, subIndex: number) => ({
-            id: `${Date.now()}-${index}-${subIndex}`,
-            label: subOpt.label,
-            odds: 2.0,
-            percentage: 50,
-            volume: '$0',
-            color: subIndex === 0 ? '#10b981' : '#ef4444',
-            ledgerId: `ledger_${Date.now()}_${index}_${subIndex}`
-          }))
+          color: predictionType === 'double' ? (index === 0 ? '#10b981' : '#ef4444') : '#10b981'
         })),
         isActive: true,
         creator,

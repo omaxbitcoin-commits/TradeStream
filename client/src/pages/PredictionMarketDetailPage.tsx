@@ -1,336 +1,329 @@
-import { useParams } from "wouter";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BettingInterface } from "@/components/prediction/BettingInterface";
-import { MarketChart } from "@/components/prediction/MarketChart";
-import { TopHoldersActivity } from "@/components/prediction/TopHoldersActivity";
-import { PriceChart } from "@/components/trading/PriceChart";
-import { 
-  Calendar, 
-  Users, 
-  TrendingUp, 
-  Clock, 
-  Link as LinkIcon, 
-  Share2, 
-  Heart,
-  BarChart3,
-  Coins,
-  TreePine
-} from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import type { PredictionMarket } from "@/types";
+import React, { useState } from 'react';
+import { useRoute } from 'wouter';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { PredictionMarket, PredictionOption } from '@/types';
+import { usePredictionMarket } from '@/hooks/usePredictionMarketsAPI';
+import { BettingInterface } from '@/components/prediction/BettingInterface';
+import { MarketChat } from '@/components/prediction/MarketChat';
+import { MarketChart } from '@/components/prediction/MarketChart';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { ArrowLeft, Share, Clock, Users, DollarSign, Bitcoin, TrendingUp, Calendar, Info } from 'lucide-react';
+import { Link } from 'wouter';
+
 
 export default function PredictionMarketDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { t } = useLanguage();
+  const [, params] = useRoute('/prediction/:id');
+  const [selectedOption, setSelectedOption] = useState<PredictionOption | undefined>();
+  
+  const marketId = params?.id || '1';
+  
+  // Fetch market data from API
+  const { data: market, isLoading, error } = usePredictionMarket(marketId);
 
-  const { data: market, isLoading, error } = useQuery({
-    queryKey: ["/api/prediction-market", id],
-    enabled: !!id
-  });
+  const formatTimeRemaining = (endDate: Date | string) => {
+    const now = new Date();
+    let endDateObj: Date;
+    
+    if (typeof endDate === 'string') {
+      endDateObj = new Date(endDate);
+    } else if (endDate instanceof Date) {
+      endDateObj = endDate;
+    } else {
+      return 'Invalid date';
+    }
+    
+    // Check if date is valid
+    if (isNaN(endDateObj.getTime())) {
+      return 'Invalid date';
+    }
+    
+    const diff = endDateObj.getTime() - now.getTime();
+    if (diff <= 0) return 'Market Closed';
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    
+    if (days > 0) return `${days} days, ${hours} hours remaining`;
+    return `${hours} hours remaining`;
+  };
+
+  const getPlaceholderImage = (category: string) => {
+    const placeholders = {
+      sports: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=300&fit=crop&auto=format',
+      crypto: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=300&fit=crop&auto=format',
+      politics: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=600&h=300&fit=crop&auto=format',
+      entertainment: 'https://images.unsplash.com/photo-1489599363715-049ef8e7e4ee?w=600&h=300&fit=crop&auto=format',
+      default: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=300&fit=crop&auto=format'
+    };
+    return placeholders[category as keyof typeof placeholders] || placeholders.default;
+  };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-muted rounded w-3/4"></div>
-          <div className="h-64 bg-muted rounded"></div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              <div className="h-48 bg-muted rounded"></div>
-              <div className="h-32 bg-muted rounded"></div>
-            </div>
-            <div className="h-96 bg-muted rounded"></div>
-          </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="page-prediction-detail">
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading prediction market...</p>
         </div>
-      </div>
+      </main>
     );
   }
 
-  if (error || !market?.data) {
+  if (error || !market) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">
-              Failed to load prediction market details
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="page-prediction-detail">
+        <div className="flex flex-col items-center justify-center py-12">
+          <h3 className="text-lg font-medium text-foreground mb-2">Market Not Found</h3>
+          <p className="text-muted-foreground text-center mb-4">
+            The prediction market you're looking for could not be found.
+          </p>
+          <Link href="/prediction-markets">
+            <Button>Back to Markets</Button>
+          </Link>
+        </div>
+      </main>
     );
   }
-
-  const predictionMarket: PredictionMarket = market.data;
-
-  const getPredictionTypeIcon = (type: string) => {
-    switch (type) {
-      case 'binary':
-        return <Coins className="h-4 w-4" />;
-      case 'multiple':
-        return <BarChart3 className="h-4 w-4" />;
-      case 'compound':
-        return <TreePine className="h-4 w-4" />;
-      default:
-        return <BarChart3 className="h-4 w-4" />;
-    }
-  };
-
-  const getPredictionTypeLabel = (type: string) => {
-    switch (type) {
-      case 'binary':
-        return 'Binary (Yes/No)';
-      case 'multiple':
-        return 'Multiple Choice';
-      case 'compound':
-        return 'Compound Prediction';
-      default:
-        return 'Prediction Market';
-    }
-  };
-
-  const renderOptions = () => {
-    if (predictionMarket.predictionType === 'compound') {
-      return predictionMarket.options.map((option) => (
-        <div key={option.id} className="border rounded-lg p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h4 className="font-semibold">{option.label}</h4>
-            <Badge style={{ backgroundColor: option.color }} className="text-white">
-              {option.percentage}%
-            </Badge>
-          </div>
-          <Progress value={option.percentage} className="h-2" />
-          <div className="text-sm text-muted-foreground">
-            Volume: {option.volume} • Odds: {option.odds}x
-          </div>
-          
-          {option.subOptions && (
-            <div className="border-t pt-3 mt-3">
-              <p className="text-sm font-medium mb-2">Sub-predictions:</p>
-              <div className="grid grid-cols-2 gap-2">
-                {option.subOptions.map((subOption) => (
-                  <div
-                    key={subOption.id}
-                    className="bg-muted/50 rounded p-2 text-center"
-                  >
-                    <div className="font-medium text-sm">{subOption.label}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {subOption.percentage}% • {subOption.odds}x
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      ));
-    } else {
-      return predictionMarket.options.map((option) => (
-        <div key={option.id} className="border rounded-lg p-4 space-y-2">
-          <div className="flex items-center justify-between">
-            <h4 className="font-semibold">{option.label}</h4>
-            <Badge style={{ backgroundColor: option.color }} className="text-white">
-              {option.percentage}%
-            </Badge>
-          </div>
-          <Progress value={option.percentage} className="h-2" />
-          <div className="text-sm text-muted-foreground">
-            Volume: {option.volume} • Odds: {option.odds}x
-          </div>
-          {option.ledgerId && (
-            <div className="text-xs text-muted-foreground">
-              Ledger: {option.ledgerId}
-            </div>
-          )}
-        </div>
-      ));
-    }
-  };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-7xl">
-      {/* Header Section */}
-      <div className="mb-8">
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-          {/* Left: Market Info */}
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-3">
-              <Badge variant="outline" className="gap-1">
-                {getPredictionTypeIcon(predictionMarket.predictionType)}
-                {getPredictionTypeLabel(predictionMarket.predictionType)}
-              </Badge>
-              <Badge variant="secondary">{predictionMarket.category}</Badge>
-              {predictionMarket.featured && (
-                <Badge variant="default">Featured</Badge>
-              )}
-            </div>
-            
-            <h1 className="text-2xl lg:text-3xl font-bold mb-3">
-              {predictionMarket.title}
-            </h1>
-            
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
-              <div className="flex items-center gap-1">
-                <Users className="h-4 w-4" />
-                {predictionMarket.participants.toLocaleString()} participants
-              </div>
-              <div className="flex items-center gap-1">
-                <TrendingUp className="h-4 w-4" />
-                {predictionMarket.totalVolumeUSD} volume
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                Ends {formatDistanceToNow(new Date(predictionMarket.endDate), { addSuffix: true })}
-              </div>
-              <div className="flex items-center gap-1">
-                <span>by</span>
-                <Badge variant="outline">{predictionMarket.creator}</Badge>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2 mb-6">
-              {predictionMarket.tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          {/* Right: Action Buttons */}
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Heart className="h-4 w-4 mr-2" />
-              Like
-            </Button>
-            <Button variant="outline" size="sm">
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-          </div>
-        </div>
-
-        {/* Market Image */}
-        {predictionMarket.image && (
-          <div className="w-full h-48 lg:h-64 rounded-lg overflow-hidden bg-muted mb-6">
-            <img 
-              src={predictionMarket.image} 
-              alt={predictionMarket.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="page-prediction-detail">
+      {/* Back Navigation */}
+      <div className="mb-6">
+        <Link href="/prediction-markets">
+          <Button variant="ghost" className="flex items-center space-x-2 mb-4">
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Markets</span>
+          </Button>
+        </Link>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Charts and Analysis */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Market Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Price Chart</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 lg:h-80">
-                <PriceChart data={[
-                  { time: '09:00', price: predictionMarket.options[0]?.percentage || 50 },
-                  { time: '12:00', price: (predictionMarket.options[0]?.percentage || 50) + 2 },
-                  { time: '15:00', price: (predictionMarket.options[0]?.percentage || 50) - 1 },
-                  { time: '18:00', price: predictionMarket.options[0]?.percentage || 50 }
-                ]} />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Market Options */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Market Options</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {renderOptions()}
-            </CardContent>
-          </Card>
-
-          {/* Description & Resolution */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Market Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-semibold mb-2">Description</h4>
-                <p className="text-muted-foreground leading-relaxed">
-                  {predictionMarket.description}
-                </p>
-              </div>
-              
-              <Separator />
-              
-              <div>
-                <h4 className="font-semibold mb-2">Resolution Criteria</h4>
-                {predictionMarket.resolutionDescription && (
-                  <p className="text-muted-foreground mb-3">
-                    {predictionMarket.resolutionDescription}
-                  </p>
-                )}
-                <div className="flex items-center gap-2">
-                  <LinkIcon className="h-4 w-4" />
-                  <a 
-                    href={predictionMarket.resolutionLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline text-sm"
-                  >
-                    Official Resolution Source
-                  </a>
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="text-muted-foreground">End Date</div>
-                  <div className="font-medium">
-                    {new Date(predictionMarket.endDate).toLocaleDateString()}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Expiration</div>
-                  <div className="font-medium">
-                    {new Date(predictionMarket.expirationTime).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Top Holders & Activity */}
-          <TopHoldersActivity 
-            topHolders={predictionMarket.topHolders}
-            recentActivity={predictionMarket.recentActivity}
-          />
-        </div>
-
-        {/* Right Column: Betting Interface */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-6">
-            <BettingInterface 
-              market={predictionMarket}
-              onBetPlaced={(betData) => {
-                console.log('Bet placed:', betData);
-                // Handle bet placement
+      {/* Market Header */}
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:space-x-6">
+          {/* Market Image */}
+          <div className="flex-shrink-0 mb-4 lg:mb-0">
+            <img 
+              src={market.image || getPlaceholderImage(market.category)} 
+              alt={market.title}
+              className="w-full lg:w-80 h-48 lg:h-60 object-cover rounded-xl"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = getPlaceholderImage(market.category);
               }}
             />
           </div>
+
+          {/* Market Info */}
+          <div className="flex-1 space-y-4">
+            {/* Title and Status */}
+            <div>
+              <div className="flex items-center space-x-2 mb-2">
+                <Badge variant="outline">{market.category}</Badge>
+                <Badge variant={market.isActive ? "default" : "secondary"}>
+                  {market.isActive ? "Live" : "Ended"}
+                </Badge>
+                {market.featured && (
+                  <Badge variant="outline" className="bg-warning/10 border-warning text-warning">
+                    Featured
+                  </Badge>
+                )}
+              </div>
+              <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
+                {market.title}
+              </h1>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Calendar className="w-4 h-4" />
+                <span>{formatTimeRemaining(market.endDate)}</span>
+              </div>
+            </div>
+
+            {/* Market Stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-surface border border-border rounded-lg p-3">
+                <div className="flex items-center space-x-2 mb-1">
+                  <DollarSign className="w-4 h-4 text-success" />
+                  <span className="text-xs text-muted-foreground">Volume (USD)</span>
+                </div>
+                <div className="font-bold text-lg">{market.totalVolumeUSD}</div>
+              </div>
+              
+              <div className="bg-surface border border-border rounded-lg p-3">
+                <div className="flex items-center space-x-2 mb-1">
+                  <Bitcoin className="w-4 h-4 text-warning" />
+                  <span className="text-xs text-muted-foreground">Volume (Sats)</span>
+                </div>
+                <div className="font-bold text-lg">{market.totalVolumeSats}</div>
+              </div>
+              
+              <div className="bg-surface border border-border rounded-lg p-3">
+                <div className="flex items-center space-x-2 mb-1">
+                  <Users className="w-4 h-4 text-accent" />
+                  <span className="text-xs text-muted-foreground">Participants</span>
+                </div>
+                <div className="font-bold text-lg">{market.participants.toLocaleString()}</div>
+              </div>
+              
+              <div className="bg-surface border border-border rounded-lg p-3">
+                <div className="flex items-center space-x-2 mb-1">
+                  <TrendingUp className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Options</span>
+                </div>
+                <div className="font-bold text-lg">{market.options.length}</div>
+              </div>
+            </div>
+
+            {/* Share Button */}
+            <div className="flex space-x-2">
+              <Button variant="outline" className="flex items-center space-x-2">
+                <Share className="w-4 h-4" />
+                <span>Share Market</span>
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Chart and Description */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Market Chart */}
+          <MarketChart market={market} />
+
+          {/* Market Description */}
+          <Card className="border-2 border-border/50 shadow-lg bg-gradient-to-br from-surface to-surface/80">
+            <CardHeader className="bg-gradient-to-r from-accent/5 to-accent/10 rounded-t-xl border-b border-border/30">
+              <CardTitle className="flex items-center space-x-3 text-xl">
+                <div className="p-2 rounded-lg bg-accent/10 text-accent">
+                  <Info className="w-5 h-5" />
+                </div>
+                <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                  Market Description
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {/* Main Description */}
+              <div className="mb-6">
+                <div className="prose prose-slate dark:prose-invert max-w-none">
+                  <p className="text-foreground/90 leading-relaxed text-base font-normal tracking-wide">
+                    {market.description}
+                  </p>
+                </div>
+              </div>
+              
+              <Separator className="my-6 bg-gradient-to-r from-transparent via-border to-transparent" />
+              
+              {/* Market Details Grid */}
+              <div className="space-y-6">
+                <div>
+                  <h4 className="font-semibold text-foreground mb-4 flex items-center space-x-2">
+                    <div className="w-1 h-4 bg-accent rounded-full"></div>
+                    <span>Market Details</span>
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm font-medium">Creator</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-accent rounded-full"></div>
+                          <span className="font-semibold text-foreground">{market.creator}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm font-medium">Resolution Date</span>
+                        <span className="font-semibold text-foreground">
+                          {typeof market.endDate === 'string' 
+                            ? new Date(market.endDate).toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })
+                            : market.endDate.toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })
+                          }
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm font-medium">Market ID</span>
+                        <span className="font-mono text-xs font-semibold text-foreground bg-background/50 px-2 py-1 rounded">
+                          #{market.id}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-sm font-medium">Status</span>
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-2 h-2 rounded-full ${market.isActive ? 'bg-success animate-pulse' : 'bg-muted-foreground'}`}></div>
+                          <span className={`font-semibold ${market.isActive ? 'text-success' : 'text-muted-foreground'}`}>
+                            {market.isActive ? 'Live Trading' : 'Market Closed'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Tags Section */}
+                {market.tags.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-4 flex items-center space-x-2">
+                      <div className="w-1 h-4 bg-accent rounded-full"></div>
+                      <span>Related Topics</span>
+                    </h4>
+                    <div className="flex flex-wrap gap-3">
+                      {market.tags.map((tag, index) => (
+                        <Badge 
+                          key={index} 
+                          variant="secondary" 
+                          className="text-sm px-3 py-1.5 font-medium bg-gradient-to-r from-accent/10 to-accent/20 border-accent/30 text-accent hover:from-accent/20 hover:to-accent/30 transition-all duration-200"
+                        >
+                          #{tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Market Chat - Mobile/Tablet */}
+          <div className="lg:hidden">
+            <MarketChat marketId={marketId} />
+          </div>
+        </div>
+
+        {/* Right Column - Betting Interface and Chat */}
+        <div className="space-y-6">
+          {/* Betting Interface */}
+          <BettingInterface
+            market={market}
+            selectedOption={selectedOption}
+            onOptionSelect={setSelectedOption}
+          />
+
+          {/* Market Chat - Desktop */}
+          <div className="hidden lg:block">
+            <MarketChat marketId={marketId} />
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }

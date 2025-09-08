@@ -55,8 +55,6 @@ export interface PredictionOption {
   percentage: number;
   volume: string;
   color: string;
-  ledgerId?: string; // ICRC-2 ledger ID
-  subOptions?: PredictionOption[]; // For compound predictions
 }
 
 export interface PredictionMarket {
@@ -66,7 +64,6 @@ export interface PredictionMarket {
   image: string;
   category: string;
   endDate: Date | string;
-  expirationTime: Date | string;
   totalVolume: string;
   totalVolumeUSD: string;
   totalVolumeSats: string;
@@ -76,31 +73,6 @@ export interface PredictionMarket {
   creator: string;
   featured: boolean;
   tags: string[];
-  predictionType: 'binary' | 'multiple' | 'compound';
-  resolutionLink: string;
-  resolutionDescription?: string;
-  topHolders?: TopHolder[];
-  recentActivity?: MarketActivity[];
-}
-
-export interface TopHolder {
-  id: string;
-  userId: string;
-  username: string;
-  avatar?: string;
-  totalPosition: string;
-  totalPositionUSD: string;
-  winRate: number;
-  positions: Position[];
-}
-
-export interface Position {
-  id: string;
-  optionId: string;
-  optionLabel: string;
-  shares: string;
-  value: string;
-  averagePrice: string;
 }
 
 export interface PredictionBet {

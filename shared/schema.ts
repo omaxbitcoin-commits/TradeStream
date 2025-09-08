@@ -91,11 +91,8 @@ export const predictionMarkets = pgTable("prediction_markets", {
   creator: text("creator").notNull(),
   featured: boolean("featured").default(false),
   tags: text("tags").array().default([]),
-  resolutionLink: text("resolution_link").notNull(),
-  resolutionDescription: text("resolution_description"),
-  expirationTime: timestamp("expiration_time").notNull(),
-  imageUrl: text("image_url"),
-  predictionType: text("prediction_type").notNull(), // 'binary', 'multiple', 'compound'
+  resolutionLink: text("resolution_link"),
+  predictionType: text("prediction_type").notNull(), // 'single' or 'double'
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
