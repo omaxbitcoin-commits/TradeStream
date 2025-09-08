@@ -583,46 +583,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sampleMarkets: PredictionMarket[] = [
         {
           id: '1',
-          title: '2025 US Open Winner (M)',
-          description: 'Who will win the 2025 US Open Men\'s Singles Championship?',
+          title: 'Will Bitcoin reach $120K before 2025 ends?',
+          description: 'This binary prediction market resolves to YES if Bitcoin (BTC) reaches or exceeds $120,000 USD at any point before December 31, 2025. Price will be determined by CoinGecko API data.',
           image: '/attached_assets/4efa8902-d287-4d3b-8bc0-9c8d8122160f_1757244824549.png',
-          category: 'sports',
-          endDate: new Date('2025-09-15'),
-          totalVolume: '1.2M',
-          totalVolumeUSD: '$1.2M',
-          totalVolumeSats: '1.8M sats',
-          participants: 1247,
-          options: [
-            { id: '1a', label: 'Novak Djokovic', odds: 2.1, percentage: 49, volume: '$589K', color: '#10b981' },
-            { id: '1b', label: 'Carlos Alcaraz', odds: 2.3, percentage: 38, volume: '$456K', color: '#ef4444' },
-            { id: '1c', label: 'Other', odds: 8.5, percentage: 13, volume: '$155K', color: '#6b7280' }
-          ],
-          isActive: true,
-          creator: 'sportsbet_pro',
-          featured: true,
-          tags: ['Tennis', 'Grand Slam', 'ATP']
-        },
-        {
-          id: '2',
-          title: 'Bitcoin close price on Sep 30th',
-          description: 'What will be the Bitcoin closing price on September 30th, 2025?',
-          image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
           category: 'crypto',
-          endDate: new Date('2025-09-30'),
-          totalVolume: '950K',
-          totalVolumeUSD: '$950K',
-          totalVolumeSats: '1.4M sats',
-          participants: 892,
+          endDate: new Date('2025-12-31'),
+          expirationTime: new Date('2025-12-31'),
+          resolutionLink: 'https://coingecko.com/en/coins/bitcoin',
+          resolutionDescription: 'Official resolution source: CoinGecko Bitcoin price data. Must reach $120,000 or higher.',
+          predictionType: 'binary' as const,
+          totalVolume: '2.4M',
+          totalVolumeUSD: '$2.4M',
+          totalVolumeSats: '3.6M sats',
+          participants: 1847,
           options: [
-            { id: '2a', label: '$110,000 - $112,249', odds: 4.0, percentage: 25, volume: '$237K', color: '#10b981' },
-            { id: '2b', label: '$112,250 - $112,500', odds: 4.3, percentage: 23, volume: '$218K', color: '#ef4444' },
-            { id: '2c', label: '$112,500+', odds: 4.8, percentage: 21, volume: '$199K', color: '#f59e0b' },
-            { id: '2d', label: 'Other Range', odds: 3.2, percentage: 31, volume: '$296K', color: '#6b7280' }
+            { id: '1a', label: 'Yes', odds: 1.8, percentage: 56, volume: '$1.34M', color: '#10b981', ledgerId: 'ledger_btc_yes' },
+            { id: '1b', label: 'No', odds: 2.2, percentage: 44, volume: '$1.06M', color: '#ef4444', ledgerId: 'ledger_btc_no' }
           ],
           isActive: true,
           creator: 'crypto_analyst',
-          featured: false,
-          tags: ['Bitcoin', 'Price Prediction', 'BTC']
+          featured: true,
+          tags: ['Bitcoin', 'BTC', 'Price Prediction', 'Crypto']
+        },
+        {
+          id: '2',
+          title: 'Who will win the 2025 World Cup?',
+          description: 'Multiple choice prediction for the 2025 FIFA World Cup winner. This market will resolve based on the official FIFA tournament results.',
+          image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
+          category: 'sports',
+          endDate: new Date('2025-06-15'),
+          expirationTime: new Date('2025-07-15'),
+          resolutionLink: 'https://fifa.com/worldcup',
+          resolutionDescription: 'Winner determined by official FIFA World Cup 2025 final match results.',
+          predictionType: 'multiple' as const,
+          totalVolume: '1.8M',
+          totalVolumeUSD: '$1.8M',
+          totalVolumeSats: '2.7M sats',
+          participants: 1342,
+          options: [
+            { id: '2a', label: 'Brazil', odds: 3.2, percentage: 32, volume: '$576K', color: '#10b981', ledgerId: 'ledger_brazil' },
+            { id: '2b', label: 'Argentina', odds: 3.8, percentage: 28, volume: '$504K', color: '#ef4444', ledgerId: 'ledger_argentina' },
+            { id: '2c', label: 'France', odds: 4.5, percentage: 22, volume: '$396K', color: '#f59e0b', ledgerId: 'ledger_france' },
+            { id: '2d', label: 'Other Team', odds: 6.2, percentage: 18, volume: '$324K', color: '#8b5cf6', ledgerId: 'ledger_other' }
+          ],
+          isActive: true,
+          creator: 'sports_expert',
+          featured: true,
+          tags: ['World Cup', 'FIFA', 'Soccer', 'Football']
         },
         {
           id: '3',
@@ -754,10 +761,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create prediction market endpoint
   app.post("/api/prediction-markets", async (req, res) => {
     try {
-      const { title, description, category, endDate, resolutionLink, predictionType, options, tags, image, creator } = req.body;
+      const { title, description, category, endDate, expirationTime, resolutionLink, resolutionDescription, predictionType, options, tags, imageUrl, creator } = req.body;
 
       // Validate required fields
-      if (!title || !description || !category || !endDate || !resolutionLink || !predictionType || !options || !creator) {
+      if (!title || !description || !category || !endDate || !expirationTime || !resolutionLink || !predictionType || !options || !creator) {
         return res.status(400).json({
           success: false,
           error: "Missing required fields"
@@ -765,25 +772,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Validate prediction type
-      if (!['single', 'double'].includes(predictionType)) {
+      if (!['binary', 'multiple', 'compound'].includes(predictionType)) {
         return res.status(400).json({
           success: false,
-          error: "Prediction type must be either 'single' or 'double'"
+          error: "Prediction type must be 'binary', 'multiple', or 'compound'"
         });
       }
 
       // Validate options based on prediction type
-      if (predictionType === 'single' && options.length !== 1) {
+      if (predictionType === 'binary' && options.length !== 2) {
         return res.status(400).json({
           success: false,
-          error: "Single predictions must have exactly 1 option"
+          error: "Binary predictions must have exactly 2 options"
         });
       }
 
-      if (predictionType === 'double' && options.length !== 2) {
+      if (predictionType === 'multiple' && options.length < 2) {
         return res.status(400).json({
           success: false,
-          error: "Double predictions must have exactly 2 options"
+          error: "Multiple choice predictions must have at least 2 options"
         });
       }
 
@@ -792,7 +799,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: Date.now().toString(),
         title,
         description,
-        image: image || '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
+        image: imageUrl || '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
+        expirationTime: new Date(expirationTime),
+        resolutionLink,
+        resolutionDescription,
+        predictionType,
         category,
         endDate: new Date(endDate),
         totalVolume: '0',
@@ -802,10 +813,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         options: options.map((option: any, index: number) => ({
           id: `${Date.now()}-${index}`,
           label: option.label,
-          odds: option.odds || (predictionType === 'double' ? 2.0 : 1.0),
-          percentage: predictionType === 'double' ? 50 : 100,
+          odds: option.odds || (predictionType === 'binary' ? 2.0 : (100 / options.length)),
+          percentage: predictionType === 'binary' ? 50 : (100 / options.length),
           volume: '$0',
-          color: predictionType === 'double' ? (index === 0 ? '#10b981' : '#ef4444') : '#10b981'
+          color: predictionType === 'binary' ? (index === 0 ? '#10b981' : '#ef4444') : 
+                 predictionType === 'multiple' ? [`#10b981`, `#ef4444`, `#f59e0b`, `#8b5cf6`, `#06b6d4`][index % 5] : '#10b981',
+          ledgerId: `ledger_${Date.now()}_${index}`,
+          subOptions: option.subOptions?.map((subOpt: any, subIndex: number) => ({
+            id: `${Date.now()}-${index}-${subIndex}`,
+            label: subOpt.label,
+            odds: 2.0,
+            percentage: 50,
+            volume: '$0',
+            color: subIndex === 0 ? '#10b981' : '#ef4444',
+            ledgerId: `ledger_${Date.now()}_${index}_${subIndex}`
+          }))
         })),
         isActive: true,
         creator,

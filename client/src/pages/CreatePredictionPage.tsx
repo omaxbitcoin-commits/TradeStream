@@ -327,10 +327,15 @@ export default function CreatePredictionPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Tabs value={predictionType} onValueChange={handlePredictionTypeChange}>
+                  <Tabs value={predictionType} onValueChange={(value) => handlePredictionTypeChange(value as "binary" | "multiple" | "compound")}>
                     <TabsList className="grid w-full grid-cols-3">
                       {predictionTypes.map((type) => (
-                        <TabsTrigger key={type.value} value={type.value} className="flex items-center gap-2">
+                        <TabsTrigger 
+                          key={type.value} 
+                          value={type.value} 
+                          className="flex items-center gap-2"
+                          onClick={() => handlePredictionTypeChange(type.value as "binary" | "multiple" | "compound")}
+                        >
                           {type.icon}
                           <span className="hidden sm:inline">{type.label}</span>
                         </TabsTrigger>
