@@ -4,7 +4,9 @@ import { PredictionCard } from '@/components/trading/PredictionCard';
 import { CategoryTabs } from '@/components/prediction/CategoryTabs';
 import { PredictionFilters } from '@/components/prediction/PredictionFilters';
 import { usePredictionMarkets, usePredictionCategories } from '@/hooks/usePredictionMarketsAPI';
-import { TrendingUp, Zap, Calendar, Users } from 'lucide-react';
+import { TrendingUp, Zap, Calendar, Users, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'wouter';
 
 export default function PredictionMarketsPage() {
   const { t } = useLanguage();
@@ -32,13 +34,23 @@ export default function PredictionMarketsPage() {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="page-prediction-markets">
       {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground mb-2">
-          Prediction Markets
-        </h1>
-        <p className="text-muted-foreground">
-          Bet on future events with real money. Create and trade on predictions about sports, politics, crypto, and more.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground mb-2">
+            Prediction Markets
+          </h1>
+          <p className="text-muted-foreground">
+            Bet on future events with real money. Create and trade on predictions about sports, politics, crypto, and more.
+          </p>
+        </div>
+        <div className="mt-4 sm:mt-0">
+          <Link href="/create-prediction">
+            <Button className="w-full sm:w-auto" data-testid="button-create-prediction">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Prediction
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Stats Overview */}

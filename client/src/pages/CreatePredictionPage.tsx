@@ -90,9 +90,12 @@ export default function CreatePredictionPage() {
         ];
       }
 
-      return apiRequest("/api/prediction-markets", {
+      const response = await fetch("/api/prediction-markets", {
         method: "POST",
-        body: {
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
           title: data.title,
           description: data.description,
           category: data.category,
@@ -102,8 +105,15 @@ export default function CreatePredictionPage() {
           creator: data.creator,
           options,
           tags
-        }
+        })
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to create prediction");
+      }
+
+      return response.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/prediction-markets"] });
