@@ -2,21 +2,74 @@ import React, { useState } from 'react';
 import { PredictionCard } from '@/components/trading/PredictionCard';
 import { CategoryTabs } from '@/components/prediction/CategoryTabs';
 import { usePredictionMarkets, usePredictionCategories } from '@/hooks/usePredictionMarketsAPI';
-import { TrendingUp, Zap, Calendar, Users, Plus } from 'lucide-react';
+import { TrendingUp, Zap, Calendar, Users, Plus, Search, Filter, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { Link } from 'wouter';
 
 export default function PredictionMarketsPage() {
   const [activeCategory, setActiveCategory] = useState('all');
+  const [showSearch, setShowSearch] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showVolume, setShowVolume] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({ 
+    sortBy: 'volume', 
+    sortOrder: 'desc',
+    marketType: 'all',
+    status: 'all'
+  });
 
   // Fetch data from API
   const { data: markets = [], isLoading: marketsLoading, error: marketsError } = usePredictionMarkets();
   const { data: categories = [], isLoading: categoriesLoading } = usePredictionCategories();
 
-  // Filter markets based on category
-  const filteredMarkets = markets.filter(market => {
-    return activeCategory === 'all' || market.category === activeCategory;
-  });
+  // Filter markets based on category, search, and other filters
+  const filteredAndSortedMarkets = markets
+    .filter(market => {
+      const matchesCategory = activeCategory === 'all' || market.category === activeCategory;
+      const matchesSearch = searchTerm === '' || 
+        market.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        market.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        market.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesMarketType = filters.marketType === 'all' || market.marketType === filters.marketType;
+      const matchesStatus = filters.status === 'all' || 
+        (filters.status === 'active' && market.isActive) ||
+        (filters.status === 'ended' && !market.isActive);
+      
+      return matchesCategory && matchesSearch && matchesMarketType && matchesStatus;
+    })
+    .sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (filters.sortBy) {
+        case 'volume':
+          // Parse volume string like "$125K" to number
+          aValue = parseFloat(a.totalVolumeUSD.replace(/[$K,M]/g, '')) * (a.totalVolumeUSD.includes('M') ? 1000000 : a.totalVolumeUSD.includes('K') ? 1000 : 1);
+          bValue = parseFloat(b.totalVolumeUSD.replace(/[$K,M]/g, '')) * (b.totalVolumeUSD.includes('M') ? 1000000 : b.totalVolumeUSD.includes('K') ? 1000 : 1);
+          break;
+        case 'participants':
+          aValue = a.participants;
+          bValue = b.participants;
+          break;
+        case 'endDate':
+          aValue = new Date(a.endDate).getTime();
+          bValue = new Date(b.endDate).getTime();
+          break;
+        case 'created':
+          // Use endDate as fallback since createdAt might not be available
+          aValue = new Date(a.endDate).getTime();
+          bValue = new Date(b.endDate).getTime();
+          break;
+        default:
+          return 0;
+      }
+      
+      return filters.sortOrder === 'desc' ? bValue - aValue : aValue - bValue;
+    });
 
   const isLoading = marketsLoading || categoriesLoading;
 
@@ -84,8 +137,44 @@ export default function PredictionMarketsPage() {
       </div>
 
 
-      {/* Create Prediction Button */}
-      <div className="flex justify-end mb-6">
+      {/* Search, Filters, Volume and Create Button */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3">
+          {/* Search Button */}
+          <Button
+            variant="outline"
+            onClick={() => setShowSearch(true)}
+            className="flex items-center gap-2"
+            data-testid="button-open-search"
+          >
+            <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Search</span>
+          </Button>
+
+          {/* Filters Button */}
+          <Button
+            variant="outline"
+            onClick={() => setShowFilters(true)}
+            className="flex items-center gap-2"
+            data-testid="button-open-filters"
+          >
+            <Filter className="h-4 w-4" />
+            <span className="hidden sm:inline">Filters</span>
+          </Button>
+
+          {/* Volume/Sort Button */}
+          <Button
+            variant="outline"
+            onClick={() => setShowVolume(true)}
+            className="flex items-center gap-2"
+            data-testid="button-open-volume"
+          >
+            <BarChart3 className="h-4 w-4" />
+            <span className="hidden sm:inline">Sort</span>
+          </Button>
+        </div>
+
+        {/* Create Prediction Button */}
         <Link href="/create-prediction">
           <Button className="flex items-center gap-2" data-testid="button-create-prediction">
             <Plus className="h-4 w-4" />
@@ -98,8 +187,9 @@ export default function PredictionMarketsPage() {
       {/* Results Count */}
       <div className="mb-4">
         <p className="text-sm text-muted-foreground">
-          Showing {filteredMarkets.length} prediction markets
+          Showing {filteredAndSortedMarkets.length} prediction markets
           {activeCategory !== 'all' && ` in ${categories.find(c => c.id === activeCategory)?.name}`}
+          {searchTerm && ` matching "${searchTerm}"`}
         </p>
       </div>
 
@@ -118,7 +208,7 @@ export default function PredictionMarketsPage() {
               Failed to load prediction markets. Please try again later.
             </p>
           </div>
-        ) : filteredMarkets.length === 0 ? (
+        ) : filteredAndSortedMarkets.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12">
             <TrendingUp className="w-16 h-16 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">No Markets Found</h3>
@@ -127,14 +217,14 @@ export default function PredictionMarketsPage() {
             </p>
           </div>
         ) : (
-          filteredMarkets.map((market) => (
+          filteredAndSortedMarkets.map((market) => (
             <PredictionCard key={market.id} market={market} />
           ))
         )}
       </div>
 
       {/* Load More (for future pagination) */}
-      {filteredMarkets.length > 0 && (
+      {filteredAndSortedMarkets.length > 0 && (
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
             Showing all available markets. More markets coming soon!
@@ -142,6 +232,128 @@ export default function PredictionMarketsPage() {
         </div>
       )}
       </main>
+
+      {/* Search Dialog */}
+      <Dialog open={showSearch} onOpenChange={setShowSearch}>
+        <DialogContent className="bg-surface border border-border rounded-xl p-6 w-full max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-foreground">
+              Search Prediction Markets
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 text-muted-foreground w-4 h-4" />
+              <Input
+                type="text"
+                placeholder="Search prediction markets..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+                data-testid="input-search-predictions"
+              />
+            </div>
+            <div className="flex justify-end mt-4">
+              <Button onClick={() => setShowSearch(false)}>
+                Done
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Filters Dialog */}
+      <Dialog open={showFilters} onOpenChange={setShowFilters}>
+        <DialogContent className="bg-surface border border-border rounded-xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-foreground">
+              Filter Prediction Markets
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            {/* Market Type Filter */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Market Type</label>
+              <Select value={filters.marketType || 'all'} onValueChange={(value) => setFilters({ ...filters, marketType: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="binary">Yes/No</SelectItem>
+                  <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
+                  <SelectItem value="compound">Compound</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Status Filter */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Status</label>
+              <Select value={filters.status || 'all'} onValueChange={(value) => setFilters({ ...filters, status: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Markets</SelectItem>
+                  <SelectItem value="active">Active Only</SelectItem>
+                  <SelectItem value="ended">Ended Only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={() => setShowFilters(false)}>
+                Done
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Volume/Sort Dialog */}
+      <Dialog open={showVolume} onOpenChange={setShowVolume}>
+        <DialogContent className="bg-surface border border-border rounded-xl p-6 w-full max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-foreground">
+              Sort & Volume
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Sort by</label>
+              <Select value={filters.sortBy} onValueChange={(value) => setFilters({ ...filters, sortBy: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="volume">Volume</SelectItem>
+                  <SelectItem value="participants">Participants</SelectItem>
+                  <SelectItem value="endDate">Ending Soon</SelectItem>
+                  <SelectItem value="created">Newest</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Order</label>
+              <Select value={filters.sortOrder} onValueChange={(value) => setFilters({ ...filters, sortOrder: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">High to Low</SelectItem>
+                  <SelectItem value="asc">Low to High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={() => setShowVolume(false)}>
+                Done
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
