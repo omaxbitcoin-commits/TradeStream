@@ -175,50 +175,52 @@ export function PredictionCard({ market, showFull = false, variant = 'default' }
           )}
         </div>
 
-        {/* Prediction Options with Scrolling */}
+        {/* Prediction Options with Enhanced Scrolling */}
         <Link href={`/prediction/${market.id}`} className="block">
-          <ScrollArea className={`mb-3 ${variant === 'hero' ? 'max-h-40' : 'max-h-32'}`}>
-            <div className="space-y-2 pr-2">
-              {market.options.map((option, index) => (
-                <div
-                  key={option.id}
-                  className={`flex items-center justify-between p-2 sm:p-3 rounded-lg border-2 transition-all hover:scale-[1.01] group ${variant === 'hero' ? 'hover:shadow-md' : ''}`}
-                  style={{ borderColor: option.color + '40' }}
-                  data-testid={`prediction-option-${option.id}`}
-                >
-                  <div className="flex items-center space-x-2 flex-1">
-                    <div 
-                      className="w-3 h-3 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: option.color }}
-                    />
-                    <span className="font-medium text-sm sm:text-base truncate group-hover:text-accent transition-colors">
-                      {option.label}
-                    </span>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="font-bold text-sm" style={{ color: option.color }}>
-                      {option.percentage}%
+          <div className="relative mb-3">
+            <ScrollArea className={`${variant === 'hero' ? 'h-48' : 'h-40'} w-full rounded-lg border border-border/50`}>
+              <div className="space-y-2 p-2">
+                {market.options.map((option, index) => (
+                  <div
+                    key={option.id}
+                    className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all hover:scale-[1.01] hover:shadow-sm group bg-background/50 ${variant === 'hero' ? 'hover:shadow-md' : ''}`}
+                    style={{ borderColor: option.color + '30' }}
+                    data-testid={`prediction-option-${option.id}`}
+                  >
+                    <div className="flex items-center space-x-3 flex-1">
+                      <div 
+                        className="w-4 h-4 rounded-full flex-shrink-0 ring-2 ring-background shadow-sm"
+                        style={{ backgroundColor: option.color }}
+                      />
+                      <span className="font-medium text-sm sm:text-base truncate group-hover:text-accent transition-colors">
+                        {option.label}
+                      </span>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      {option.odds.toFixed(2)}x
+                    <div className="text-right flex-shrink-0">
+                      <div className="font-bold text-sm" style={{ color: option.color }}>
+                        {option.percentage}%
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {option.odds.toFixed(2)}x
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+                ))}
+              </div>
+            </ScrollArea>
+            
+            {/* Gradient fade at bottom to indicate more content */}
+            {market.options.length > 3 && (
+              <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-surface/90 to-transparent pointer-events-none rounded-b-lg" />
+            )}
+          </div>
         </Link>
 
-        {/* Show scroll indicator if more than 3 options */}
+        {/* Scroll indicator with count */}
         {market.options.length > 3 && (
-          <div className="flex items-center justify-center border-t border-border pt-2">
-            <span className="text-xs text-muted-foreground flex items-center space-x-1">
-              <span>Scroll to see all {market.options.length} options</span>
-              <div className="flex space-x-0.5">
-                <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce"></div>
-                <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              </div>
+          <div className="flex items-center justify-center mb-2">
+            <span className="text-xs text-muted-foreground bg-muted/30 px-2 py-1 rounded-full">
+              {market.options.length} options • scroll to view all
             </span>
           </div>
         )}
