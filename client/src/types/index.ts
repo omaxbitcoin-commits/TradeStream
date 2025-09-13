@@ -73,6 +73,8 @@ export interface PredictionMarket {
   creator: string;
   featured: boolean;
   tags: string[];
+  marketType: 'binary' | 'multiple_choice' | 'compound';
+  resolutionLink?: string;
 }
 
 export interface PredictionBet {

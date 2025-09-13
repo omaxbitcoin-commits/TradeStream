@@ -19,9 +19,16 @@ export function BettingInterface({ market, selectedOption, onOptionSelect }: Bet
   const [betType, setBetType] = useState<'buy' | 'sell'>('buy');
 
   const calculatePotentialWinnings = () => {
-    if (!selectedOption || !betAmount) return 0;
+    if (!betAmount) return 0;
     const amount = parseFloat(betAmount);
     if (isNaN(amount)) return 0;
+    
+    if (market.marketType === 'binary') {
+      const targetOption = betType === 'buy' ? market.options[0] : market.options[1];
+      return amount * (targetOption?.odds || 1);
+    }
+    
+    if (!selectedOption) return 0;
     return amount * selectedOption.odds;
   };
 
@@ -33,57 +40,59 @@ export function BettingInterface({ market, selectedOption, onOptionSelect }: Bet
 
   return (
     <div className="space-y-6">
-      {/* Market Options */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Target className="w-5 h-5" />
-            <span>Betting Options</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {market.options.map((option) => (
-              <button
-                key={option.id}
-                onClick={() => onOptionSelect(option)}
-                className={`w-full p-4 rounded-lg border-2 transition-all hover:scale-[1.02] ${
-                  selectedOption?.id === option.id
-                    ? 'border-accent bg-accent/10'
-                    : 'border-border hover:border-accent/50'
-                }`}
-                data-testid={`betting-option-${option.id}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div 
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: option.color }}
-                    />
-                    <div className="text-left">
-                      <div className="font-medium text-foreground">{option.label}</div>
+      {/* Market Options - Show for multiple choice and compound, hide for binary */}
+      {market.marketType !== 'binary' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Target className="w-5 h-5" />
+              <span>Betting Options</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {market.options.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => onOptionSelect(option)}
+                  className={`w-full p-4 rounded-lg border-2 transition-all hover:scale-[1.02] ${
+                    selectedOption?.id === option.id
+                      ? 'border-accent bg-accent/10'
+                      : 'border-border hover:border-accent/50'
+                  }`}
+                  data-testid={`betting-option-${option.id}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div 
+                        className="w-4 h-4 rounded-full"
+                        style={{ backgroundColor: option.color }}
+                      />
+                      <div className="text-left">
+                        <div className="font-medium text-foreground">{option.label}</div>
+                        <div className="text-sm text-muted-foreground">
+                          Volume: {option.volume}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-lg" style={{ color: option.color }}>
+                        {option.percentage}%
+                      </div>
                       <div className="text-sm text-muted-foreground">
-                        Volume: {option.volume}
+                        {option.odds.toFixed(2)}x odds
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold text-lg" style={{ color: option.color }}>
-                      {option.percentage}%
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {option.odds.toFixed(2)}x odds
-                    </div>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Betting Interface */}
-      {selectedOption && (
+      {(selectedOption || market.marketType === 'binary') && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
@@ -91,33 +100,37 @@ export function BettingInterface({ market, selectedOption, onOptionSelect }: Bet
                 <DollarSign className="w-5 h-5" />
                 <span>Place Bet</span>
               </div>
-              <Badge style={{ backgroundColor: selectedOption.color + '20', color: selectedOption.color }}>
-                {selectedOption.label}
-              </Badge>
+              {selectedOption && market.marketType !== 'binary' && (
+                <Badge style={{ backgroundColor: selectedOption.color + '20', color: selectedOption.color }}>
+                  {selectedOption.label}
+                </Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Buy/Sell Toggle */}
-            <div className="flex bg-surface rounded-lg p-1">
-              <Button
-                variant={betType === 'buy' ? 'default' : 'ghost'}
-                onClick={() => setBetType('buy')}
-                className="flex-1"
-                data-testid="button-bet-buy"
-              >
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Buy Yes
-              </Button>
-              <Button
-                variant={betType === 'sell' ? 'default' : 'ghost'}
-                onClick={() => setBetType('sell')}
-                className="flex-1"
-                data-testid="button-bet-sell"
-              >
-                <TrendingDown className="w-4 h-4 mr-2" />
-                Buy No
-              </Button>
-            </div>
+            {/* Buy/Sell Toggle - Show for binary and compound markets */}
+            {(market.marketType === 'binary' || market.marketType === 'compound') && (
+              <div className="flex bg-surface rounded-lg p-1">
+                <Button
+                  variant={betType === 'buy' ? 'default' : 'ghost'}
+                  onClick={() => setBetType('buy')}
+                  className="flex-1"
+                  data-testid="button-bet-buy"
+                >
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  {market.marketType === 'binary' ? 'Yes' : 'Buy Yes'}
+                </Button>
+                <Button
+                  variant={betType === 'sell' ? 'default' : 'ghost'}
+                  onClick={() => setBetType('sell')}
+                  className="flex-1"
+                  data-testid="button-bet-sell"
+                >
+                  <TrendingDown className="w-4 h-4 mr-2" />
+                  {market.marketType === 'binary' ? 'No' : 'Buy No'}
+                </Button>
+              </div>
+            )}
 
             {/* Bet Amount */}
             <div>
@@ -159,32 +172,48 @@ export function BettingInterface({ market, selectedOption, onOptionSelect }: Bet
                   <span className="text-muted-foreground">Your Bet:</span>
                   <span className="font-medium">${betAmount}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Odds:</span>
-                  <span className="font-medium">{selectedOption.odds.toFixed(2)}x</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Potential Winnings:</span>
-                  <span className="font-medium text-success">
-                    ${calculatePotentialWinnings().toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm font-bold border-t border-border pt-2">
-                  <span>Potential Profit:</span>
-                  <span className={calculatePotentialProfit() >= 0 ? 'text-success' : 'text-destructive'}>
-                    ${calculatePotentialProfit().toFixed(2)}
-                  </span>
-                </div>
+                {(selectedOption || market.marketType === 'binary') && (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Odds:</span>
+                      <span className="font-medium">
+                        {market.marketType === 'binary' 
+                          ? (betType === 'buy' ? market.options[0]?.odds.toFixed(2) : market.options[1]?.odds.toFixed(2))
+                          : selectedOption?.odds.toFixed(2)
+                        }x
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Potential Winnings:</span>
+                      <span className="font-medium text-success">
+                        ${calculatePotentialWinnings().toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm font-bold border-t border-border pt-2">
+                      <span>Potential Profit:</span>
+                      <span className={calculatePotentialProfit() >= 0 ? 'text-success' : 'text-destructive'}>
+                        ${calculatePotentialProfit().toFixed(2)}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
             {/* Place Bet Button */}
             <Button
               className="w-full"
-              disabled={!betAmount || parseFloat(betAmount) <= 0}
+              disabled={!betAmount || parseFloat(betAmount) <= 0 || (market.marketType !== 'binary' && !selectedOption)}
               data-testid="button-place-bet"
             >
-              Place {betType === 'buy' ? 'Buy' : 'Sell'} Bet - ${betAmount || '0.00'}
+              {market.marketType === 'binary' 
+                ? `Place ${betType === 'buy' ? 'Yes' : 'No'} Bet - $${betAmount || '0.00'}`
+                : market.marketType === 'compound'
+                ? `Place ${betType === 'buy' ? 'Buy' : 'Sell'} Bet - $${betAmount || '0.00'}`
+                : selectedOption
+                ? `Place Bet on ${selectedOption.label} - $${betAmount || '0.00'}`
+                : 'Select Option First'
+              }
             </Button>
 
             {/* Market Info */}

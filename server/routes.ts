@@ -583,88 +583,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sampleMarkets: PredictionMarket[] = [
         {
           id: '1',
-          title: '2025 US Open Winner (M)',
-          description: 'Who will win the 2025 US Open Men\'s Singles Championship?',
-          image: '/attached_assets/4efa8902-d287-4d3b-8bc0-9c8d8122160f_1757244824549.png',
-          category: 'sports',
-          endDate: new Date('2025-09-15'),
+          title: 'Will Bitcoin reach ATH before year ends?',
+          description: 'This market will resolve to "Yes" if Bitcoin (BTC) reaches a new all-time high (above $69,000) before December 31st, 2025. Resolution will be based on CoinGecko or CoinMarketCap data.',
+          image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
+          category: 'crypto',
+          endDate: new Date('2025-12-31'),
           totalVolume: '1.2M',
           totalVolumeUSD: '$1.2M',
           totalVolumeSats: '1.8M sats',
           participants: 1247,
           options: [
-            { id: '1a', label: 'Novak Djokovic', odds: 2.1, percentage: 49, volume: '$589K', color: '#10b981' },
-            { id: '1b', label: 'Carlos Alcaraz', odds: 2.3, percentage: 38, volume: '$456K', color: '#ef4444' },
-            { id: '1c', label: 'Other', odds: 8.5, percentage: 13, volume: '$155K', color: '#6b7280' }
+            { id: '1a', label: 'Yes', odds: 1.85, percentage: 54, volume: '$648K', color: '#10b981' },
+            { id: '1b', label: 'No', odds: 2.2, percentage: 46, volume: '$552K', color: '#ef4444' }
           ],
           isActive: true,
-          creator: 'sportsbet_pro',
+          creator: 'crypto_oracle',
           featured: true,
-          tags: ['Tennis', 'Grand Slam', 'ATP']
+          tags: ['Bitcoin', 'BTC', 'ATH'],
+          marketType: 'binary',
+          resolutionLink: 'https://coingecko.com/en/coins/bitcoin'
         },
         {
           id: '2',
-          title: 'Bitcoin close price on Sep 30th',
-          description: 'What will be the Bitcoin closing price on September 30th, 2025?',
-          image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
-          category: 'crypto',
-          endDate: new Date('2025-09-30'),
+          title: '2025 US Open Winner (Men\'s Singles)',
+          description: 'Which player will win the 2025 US Open Men\'s Singles Championship? The market will resolve to the winner of the final match.',
+          image: '/attached_assets/4efa8902-d287-4d3b-8bc0-9c8d8122160f_1757244824549.png',
+          category: 'sports',
+          endDate: new Date('2025-09-15'),
           totalVolume: '950K',
           totalVolumeUSD: '$950K',
           totalVolumeSats: '1.4M sats',
           participants: 892,
           options: [
-            { id: '2a', label: '$110,000 - $112,249', odds: 4.0, percentage: 25, volume: '$237K', color: '#10b981' },
-            { id: '2b', label: '$112,250 - $112,500', odds: 4.3, percentage: 23, volume: '$218K', color: '#ef4444' },
-            { id: '2c', label: '$112,500+', odds: 4.8, percentage: 21, volume: '$199K', color: '#f59e0b' },
-            { id: '2d', label: 'Other Range', odds: 3.2, percentage: 31, volume: '$296K', color: '#6b7280' }
+            { id: '2a', label: 'Novak Djokovic', odds: 3.2, percentage: 31, volume: '$295K', color: '#10b981' },
+            { id: '2b', label: 'Carlos Alcaraz', odds: 3.8, percentage: 26, volume: '$247K', color: '#ef4444' },
+            { id: '2c', label: 'Jannik Sinner', odds: 4.5, percentage: 22, volume: '$209K', color: '#f59e0b' },
+            { id: '2d', label: 'Daniil Medvedev', odds: 6.0, percentage: 17, volume: '$162K', color: '#8b5cf6' },
+            { id: '2e', label: 'Other Player', odds: 12.5, percentage: 8, volume: '$76K', color: '#6b7280' }
           ],
           isActive: true,
-          creator: 'crypto_analyst',
+          creator: 'tennis_expert',
           featured: false,
-          tags: ['Bitcoin', 'Price Prediction', 'BTC']
+          tags: ['Tennis', 'US Open', 'ATP'],
+          marketType: 'multiple_choice',
+          resolutionLink: 'https://usopen.org/en_US/scores/schedule/index.html'
         },
         {
           id: '3',
-          title: 'BAL Ravens vs BUF Bills (Sep 7): Ravens win?',
-          description: 'Will the Baltimore Ravens win against Buffalo Bills on September 7th?',
+          title: 'Will Trump win 2024 Presidential Election AND serve full term?',
+          description: 'This compound prediction resolves to "Yes" only if both conditions are met: Trump wins the 2024 election AND serves the full presidential term without resignation or removal.',
           image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
-          category: 'sports',
-          endDate: new Date('2025-09-07'),
+          category: 'politics',
+          endDate: new Date('2029-01-20'),
           totalVolume: '680K',
           totalVolumeUSD: '$680K',
           totalVolumeSats: '1.02M sats',
           participants: 634,
           options: [
-            { id: '3a', label: 'Yes', odds: 1.85, percentage: 53, volume: '$360K', color: '#10b981' },
-            { id: '3b', label: 'No', odds: 2.1, percentage: 47, volume: '$320K', color: '#ef4444' }
+            { id: '3a', label: 'Election Win', odds: 2.1, percentage: 48, volume: '$326K', color: '#10b981' },
+            { id: '3b', label: 'Full Term Service', odds: 3.2, percentage: 31, volume: '$211K', color: '#f59e0b' },
+            { id: '3c', label: 'Both Conditions', odds: 4.5, percentage: 22, volume: '$150K', color: '#8b5cf6' }
           ],
           isActive: true,
-          creator: 'nfl_predictor',
+          creator: 'political_analyst',
           featured: false,
-          tags: ['NFL', 'Ravens', 'Bills']
+          tags: ['Politics', 'US Election', 'Presidential'],
+          marketType: 'compound',
+          resolutionLink: 'https://ballotpedia.org/Presidential_election,_2024'
         },
         {
           id: '4',
-          title: 'Grey Cup Winner 2025',
-          description: 'Which team will win the 2025 Grey Cup Championship?',
+          title: 'Next Company to Reach $4T Market Cap',
+          description: 'Which publicly traded company will be the first to reach a $4 trillion market capitalization after Apple and Microsoft?',
           image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
-          category: 'sports',
-          endDate: new Date('2025-11-23'),
+          category: 'economy',
+          endDate: new Date('2026-12-31'),
           totalVolume: '420K',
           totalVolumeUSD: '$420K',
           totalVolumeSats: '630K sats',
           participants: 387,
           options: [
-            { id: '4a', label: 'Calgary Stampeders', odds: 3.4, percentage: 29, volume: '$122K', color: '#dc2626' },
-            { id: '4b', label: 'Saskatchewan Roughriders', odds: 4.1, percentage: 22, volume: '$92K', color: '#10b981' },
-            { id: '4c', label: 'Montreal Alouettes', odds: 8.3, percentage: 12, volume: '$50K', color: '#3b82f6' },
-            { id: '4d', label: 'Other Team', odds: 2.1, percentage: 37, volume: '$156K', color: '#6b7280' }
+            { id: '4a', label: 'Google (Alphabet)', odds: 3.5, percentage: 29, volume: '$122K', color: '#10b981' },
+            { id: '4b', label: 'Amazon', odds: 4.2, percentage: 24, volume: '$101K', color: '#ef4444' },
+            { id: '4c', label: 'Tesla', odds: 5.8, percentage: 17, volume: '$71K', color: '#f59e0b' },
+            { id: '4d', label: 'Meta', odds: 7.1, percentage: 14, volume: '$59K', color: '#8b5cf6' },
+            { id: '4e', label: 'NVIDIA', odds: 6.2, percentage: 16, volume: '$67K', color: '#06b6d4' }
           ],
           isActive: true,
-          creator: 'cfl_fan',
+          creator: 'market_watcher',
           featured: false,
-          tags: ['CFL', 'Grey Cup', 'Canadian Football']
+          tags: ['Stocks', 'Market Cap', 'Tech'],
+          marketType: 'multiple_choice',
+          resolutionLink: 'https://companiesmarketcap.com'
         }
       ];
 
@@ -714,27 +724,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       
       // In production, fetch from database
-      const sampleMarket: PredictionMarket = {
-        id: '1',
-        title: '2025 US Open Winner (M)',
-        description: 'This market will resolve to the player that wins the 2025 US Open Men\'s Singles Tournament. Otherwise, this market will resolve to "No" if listed player wins the 2025 US Open Men\'s Singles Tournament. The primary resolution source will be official information from the US Open organization and other authoritative sources concerning how event occurs.',
-        image: '/attached_assets/4efa8902-d287-4d3b-8bc0-9c8d8122160f_1757244824549.png',
-        category: 'sports',
-        endDate: new Date('2025-09-15'),
-        totalVolume: '1.2M',
-        totalVolumeUSD: '$1.2M',
-        totalVolumeSats: '1.8M sats',
-        participants: 1247,
-        options: [
-          { id: '1a', label: 'Novak Djokovic', odds: 2.1, percentage: 49, volume: '$589K', color: '#10b981' },
-          { id: '1b', label: 'Carlos Alcaraz', odds: 2.3, percentage: 38, volume: '$456K', color: '#ef4444' },
-          { id: '1c', label: 'Other Player', odds: 8.5, percentage: 13, volume: '$155K', color: '#6b7280' }
-        ],
-        isActive: true,
-        creator: 'sportsbet_pro',
-        featured: true,
-        tags: ['Tennis', 'Grand Slam', 'ATP']
-      };
+      // For demo, return the market that matches the ID, or default to market 1
+      const markets = [
+        {
+          id: '1',
+          title: 'Will Bitcoin reach ATH before year ends?',
+          description: 'This market will resolve to "Yes" if Bitcoin (BTC) reaches a new all-time high (above $69,000) before December 31st, 2025. Resolution will be based on CoinGecko or CoinMarketCap data.',
+          image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
+          category: 'crypto',
+          endDate: new Date('2025-12-31'),
+          totalVolume: '1.2M',
+          totalVolumeUSD: '$1.2M',
+          totalVolumeSats: '1.8M sats',
+          participants: 1247,
+          options: [
+            { id: '1a', label: 'Yes', odds: 1.85, percentage: 54, volume: '$648K', color: '#10b981' },
+            { id: '1b', label: 'No', odds: 2.2, percentage: 46, volume: '$552K', color: '#ef4444' }
+          ],
+          isActive: true,
+          creator: 'crypto_oracle',
+          featured: true,
+          tags: ['Bitcoin', 'BTC', 'ATH'],
+          marketType: 'binary' as const,
+          resolutionLink: 'https://coingecko.com/en/coins/bitcoin'
+        },
+        {
+          id: '2',
+          title: '2025 US Open Winner (Men\'s Singles)',
+          description: 'Which player will win the 2025 US Open Men\'s Singles Championship? The market will resolve to the winner of the final match.',
+          image: '/attached_assets/4efa8902-d287-4d3b-8bc0-9c8d8122160f_1757244824549.png',
+          category: 'sports',
+          endDate: new Date('2025-09-15'),
+          totalVolume: '950K',
+          totalVolumeUSD: '$950K',
+          totalVolumeSats: '1.4M sats',
+          participants: 892,
+          options: [
+            { id: '2a', label: 'Novak Djokovic', odds: 3.2, percentage: 31, volume: '$295K', color: '#10b981' },
+            { id: '2b', label: 'Carlos Alcaraz', odds: 3.8, percentage: 26, volume: '$247K', color: '#ef4444' },
+            { id: '2c', label: 'Jannik Sinner', odds: 4.5, percentage: 22, volume: '$209K', color: '#f59e0b' },
+            { id: '2d', label: 'Daniil Medvedev', odds: 6.0, percentage: 17, volume: '$162K', color: '#8b5cf6' },
+            { id: '2e', label: 'Other Player', odds: 12.5, percentage: 8, volume: '$76K', color: '#6b7280' }
+          ],
+          isActive: true,
+          creator: 'tennis_expert',
+          featured: false,
+          tags: ['Tennis', 'US Open', 'ATP'],
+          marketType: 'multiple_choice' as const,
+          resolutionLink: 'https://usopen.org/en_US/scores/schedule/index.html'
+        },
+        {
+          id: '3',
+          title: 'Will Trump win 2024 Presidential Election AND serve full term?',
+          description: 'This compound prediction resolves to "Yes" only if both conditions are met: Trump wins the 2024 election AND serves the full presidential term without resignation or removal.',
+          image: '/attached_assets/986993f7-098f-4f15-9e67-4b122dcb6357_1757244824568.png',
+          category: 'politics',
+          endDate: new Date('2029-01-20'),
+          totalVolume: '680K',
+          totalVolumeUSD: '$680K',
+          totalVolumeSats: '1.02M sats',
+          participants: 634,
+          options: [
+            { id: '3a', label: 'Election Win', odds: 2.1, percentage: 48, volume: '$326K', color: '#10b981' },
+            { id: '3b', label: 'Full Term Service', odds: 3.2, percentage: 31, volume: '$211K', color: '#f59e0b' },
+            { id: '3c', label: 'Both Conditions', odds: 4.5, percentage: 22, volume: '$150K', color: '#8b5cf6' }
+          ],
+          isActive: true,
+          creator: 'political_analyst',
+          featured: false,
+          tags: ['Politics', 'US Election', 'Presidential'],
+          marketType: 'compound' as const,
+          resolutionLink: 'https://ballotpedia.org/Presidential_election,_2024'
+        }
+      ];
+
+      const sampleMarket = markets.find(market => market.id === id) || markets[0];
 
       const response: APIResponse<PredictionMarket> = {
         success: true,
@@ -754,36 +818,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create prediction market endpoint
   app.post("/api/prediction-markets", async (req, res) => {
     try {
-      const { title, description, category, endDate, resolutionLink, predictionType, options, tags, image, creator } = req.body;
+      const { title, description, category, endDate, resolutionLink, marketType, options, tags, image, creator } = req.body;
 
       // Validate required fields
-      if (!title || !description || !category || !endDate || !resolutionLink || !predictionType || !options || !creator) {
+      if (!title || !description || !category || !endDate || !resolutionLink || !marketType || !options || !creator) {
         return res.status(400).json({
           success: false,
           error: "Missing required fields"
         });
       }
 
-      // Validate prediction type
-      if (!['single', 'double'].includes(predictionType)) {
+      // Validate market type
+      if (!['binary', 'multiple_choice', 'compound'].includes(marketType)) {
         return res.status(400).json({
           success: false,
-          error: "Prediction type must be either 'single' or 'double'"
+          error: "Market type must be 'binary', 'multiple_choice', or 'compound'"
         });
       }
 
-      // Validate options based on prediction type
-      if (predictionType === 'single' && options.length !== 1) {
+      // Validate options based on market type
+      if (marketType === 'binary' && options.length !== 2) {
         return res.status(400).json({
           success: false,
-          error: "Single predictions must have exactly 1 option"
+          error: "Binary markets must have exactly 2 options (Yes/No)"
         });
       }
 
-      if (predictionType === 'double' && options.length !== 2) {
+      if (marketType === 'multiple_choice' && options.length < 2) {
         return res.status(400).json({
           success: false,
-          error: "Double predictions must have exactly 2 options"
+          error: "Multiple choice markets must have at least 2 options"
+        });
+      }
+
+      if (marketType === 'compound' && options.length < 2) {
+        return res.status(400).json({
+          success: false,
+          error: "Compound markets must have at least 2 options"
         });
       }
 
@@ -802,15 +873,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         options: options.map((option: any, index: number) => ({
           id: `${Date.now()}-${index}`,
           label: option.label,
-          odds: option.odds || (predictionType === 'double' ? 2.0 : 1.0),
-          percentage: predictionType === 'double' ? 50 : 100,
+          odds: option.odds || (marketType === 'binary' ? 2.0 : (100 / options.length) * 0.02),
+          percentage: marketType === 'binary' ? 50 : Math.floor(100 / options.length),
           volume: '$0',
-          color: predictionType === 'double' ? (index === 0 ? '#10b981' : '#ef4444') : '#10b981'
+          color: marketType === 'binary' ? (index === 0 ? '#10b981' : '#ef4444') : 
+                 [`#10b981`, `#ef4444`, `#f59e0b`, `#8b5cf6`, `#06b6d4`, `#ec4899`][index % 6]
         })),
         isActive: true,
         creator,
         featured: false,
-        tags: tags || []
+        tags: tags || [],
+        marketType,
+        resolutionLink
       };
 
       const response: APIResponse<PredictionMarket> = {

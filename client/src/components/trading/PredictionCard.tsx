@@ -127,22 +127,37 @@ export function PredictionCard({ market, showFull = false }: PredictionCardProps
           </div>
         </div>
 
-        {/* Main Prediction Options */}
-        <div className="space-y-2 mb-3">
-          {mainOptions.map((option) => (
-            <Link key={option.id} href={`/prediction/${market.id}`}>
-              <Button
-                variant="outline"
-                className={`w-full flex items-center justify-between p-2 sm:p-3 h-auto transition-all hover:scale-[1.02] border-2`}
+        {/* Market Type Indicator */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <Badge variant="outline" className="text-xs">
+              {market.marketType === 'binary' ? 'Yes/No' : 
+               market.marketType === 'multiple_choice' ? 'Multiple Choice' : 'Compound'}
+            </Badge>
+            <span className="text-xs text-muted-foreground">
+              {market.options.length} options
+            </span>
+          </div>
+        </div>
+
+        {/* Prediction Options with Scrolling */}
+        <Link href={`/prediction/${market.id}`} className="block">
+          <div className="space-y-2 mb-3 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-background">
+            {market.options.map((option, index) => (
+              <div
+                key={option.id}
+                className={`flex items-center justify-between p-2 sm:p-3 rounded-lg border-2 transition-all hover:scale-[1.01] group`}
                 style={{ borderColor: option.color + '40' }}
                 data-testid={`prediction-option-${option.id}`}
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 flex-1">
                   <div 
                     className="w-3 h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: option.color }}
                   />
-                  <span className="font-medium text-sm sm:text-base truncate">{option.label}</span>
+                  <span className="font-medium text-sm sm:text-base truncate group-hover:text-accent transition-colors">
+                    {option.label}
+                  </span>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <div className="font-bold text-sm" style={{ color: option.color }}>
@@ -152,29 +167,22 @@ export function PredictionCard({ market, showFull = false }: PredictionCardProps
                     {option.odds.toFixed(2)}x
                   </div>
                 </div>
-              </Button>
-            </Link>
-          ))}
-        </div>
-
-        {/* Additional Options (if more than 2) */}
-        {additionalOptions.length > 0 && (
-          <div className="border-t border-border pt-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                +{additionalOptions.length} more options
-              </span>
-              <div className="flex space-x-1">
-                {additionalOptions.slice(0, 3).map((option, index) => (
-                  <div
-                    key={option.id}
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: option.color }}
-                    title={`${option.label}: ${option.percentage}%`}
-                  />
-                ))}
               </div>
-            </div>
+            ))}
+          </div>
+        </Link>
+
+        {/* Show scroll indicator if more than 3 options */}
+        {market.options.length > 3 && (
+          <div className="flex items-center justify-center border-t border-border pt-2">
+            <span className="text-xs text-muted-foreground flex items-center space-x-1">
+              <span>Scroll to see all {market.options.length} options</span>
+              <div className="flex space-x-0.5">
+                <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce"></div>
+                <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              </div>
+            </span>
           </div>
         )}
 
