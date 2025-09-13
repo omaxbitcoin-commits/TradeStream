@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PredictionCard } from '@/components/trading/PredictionCard';
 import { CategoryTabs } from '@/components/prediction/CategoryTabs';
 import { PredictionFilters } from '@/components/prediction/PredictionFilters';
 import { usePredictionMarkets, usePredictionCategories } from '@/hooks/usePredictionMarketsAPI';
-import { TrendingUp, Zap, Calendar, Users, Plus } from 'lucide-react';
+import { TrendingUp, Zap, Calendar, Users, Plus, Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Link } from 'wouter';
 
 export default function PredictionMarketsPage() {
@@ -14,43 +17,72 @@ export default function PredictionMarketsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({});
+  const [sortBy, setSortBy] = useState('volume');
 
   // Fetch data from API
   const { data: markets = [], isLoading: marketsLoading, error: marketsError } = usePredictionMarkets();
   const { data: categories = [], isLoading: categoriesLoading } = usePredictionCategories();
 
-  // Filter markets based on category and search
-  const filteredMarkets = markets.filter(market => {
-    const matchesCategory = activeCategory === 'all' || market.category === activeCategory;
-    const matchesSearch = market.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         market.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         market.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    return matchesCategory && matchesSearch;
-  });
+  // Filter and sort markets
+  const filteredMarkets = useMemo(() => {
+    let filtered = markets.filter(market => {
+      const matchesCategory = activeCategory === 'all' || market.category === activeCategory;
+      const matchesSearch = market.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           market.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           market.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      return matchesCategory && matchesSearch;
+    });
+
+    // Sort markets
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'volume':
+          return parseFloat(b.totalVolumeUSD) - parseFloat(a.totalVolumeUSD);
+        case 'activity':
+          return b.participants - a.participants;
+        case 'newest':
+          return new Date(b.endDate).getTime() - new Date(a.endDate).getTime();
+        default:
+          return 0;
+      }
+    });
+  }, [markets, activeCategory, searchTerm, sortBy]);
+
+  // Get featured markets (top 3 by volume)
+  const featuredMarkets = useMemo(() => {
+    return markets
+      .filter(market => market.isActive)
+      .sort((a, b) => parseFloat(b.totalVolumeUSD) - parseFloat(a.totalVolumeUSD))
+      .slice(0, 3);
+  }, [markets]);
 
   const isLoading = marketsLoading || categoriesLoading;
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="page-prediction-markets">
+    <div data-testid="page-prediction-markets">
+      {/* Sticky Categories Bar */}
+      {!categoriesLoading && categories.length > 0 && (
+        <div className="sticky top-16 z-40 bg-surface/95 backdrop-blur border-b border-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <CategoryTabs
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
+            />
+          </div>
+        </div>
+      )}
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            Prediction Markets
-          </h1>
-          <p className="text-muted-foreground">
-            Bet on future events with real money. Create and trade on predictions about sports, politics, crypto, and more.
-          </p>
-        </div>
-        <div className="mt-4 sm:mt-0">
-          <Link href="/create-prediction">
-            <Button className="w-full sm:w-auto" data-testid="button-create-prediction">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Prediction
-            </Button>
-          </Link>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
+          Prediction Markets
+        </h1>
+        <p className="text-muted-foreground text-lg">
+          Bet on future events with real money. Create and trade on predictions about sports, politics, crypto, and more.
+        </p>
       </div>
 
       {/* Stats Overview */}
@@ -90,16 +122,67 @@ export default function PredictionMarketsPage() {
         </div>
       </div>
 
-      {/* Categories */}
-      {!categoriesLoading && categories.length > 0 && (
-        <div className="mb-6">
-          <CategoryTabs
-            categories={categories}
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-          />
+      {/* Featured Markets Carousel */}
+      {featuredMarkets.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-foreground mb-4">Featured Markets</h2>
+          <Carousel className="w-full">
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {featuredMarkets.map((market) => (
+                <CarouselItem key={market.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 xl:basis-1/3">
+                  <PredictionCard market={market} variant="hero" />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-2" />
+            <CarouselNext className="right-2" />
+          </Carousel>
         </div>
       )}
+
+      {/* Search and Filters Toolbar */}
+      <div className="flex flex-wrap items-center gap-3 mb-6 p-4 bg-surface/50 rounded-lg border border-border">
+        <div className="flex-1 min-w-[200px]">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search markets..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+              data-testid="input-search"
+            />
+          </div>
+        </div>
+        
+        <Button
+          variant="outline"
+          onClick={() => setShowFilters(true)}
+          className="flex items-center gap-2"
+          data-testid="button-filters"
+        >
+          <Filter className="h-4 w-4" />
+          Filters
+        </Button>
+        
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-[140px]" data-testid="select-sort">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="volume">Volume</SelectItem>
+            <SelectItem value="activity">Activity</SelectItem>
+            <SelectItem value="newest">Newest</SelectItem>
+          </SelectContent>
+        </Select>
+        
+        <Link href="/create-prediction">
+          <Button className="flex items-center gap-2" data-testid="button-create-prediction">
+            <Plus className="h-4 w-4" />
+            Create Prediction
+          </Button>
+        </Link>
+      </div>
 
       {/* Filters */}
       <PredictionFilters
@@ -161,6 +244,7 @@ export default function PredictionMarketsPage() {
           </p>
         </div>
       )}
-    </main>
+      </main>
+    </div>
   );
 }

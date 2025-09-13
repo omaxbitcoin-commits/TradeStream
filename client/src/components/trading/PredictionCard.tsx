@@ -4,14 +4,18 @@ import { PredictionMarket } from '@/types';
 import { Users, DollarSign, Clock, TrendingUp, Bitcoin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { useLanguage } from '@/contexts/LanguageContext';
+import sportsImage from '@assets/c8bda1d5-e4b4-4457-8907-cd8e80a0ffd6_1757799921805.png';
 
 interface PredictionCardProps {
   market: PredictionMarket;
   showFull?: boolean;
+  variant?: 'default' | 'hero';
 }
 
-export function PredictionCard({ market, showFull = false }: PredictionCardProps) {
+export function PredictionCard({ market, showFull = false, variant = 'default' }: PredictionCardProps) {
   const { t } = useLanguage();
   
   const formatTimeRemaining = (endDate: Date | string) => {
@@ -43,11 +47,11 @@ export function PredictionCard({ market, showFull = false }: PredictionCardProps
 
   const getPlaceholderImage = (category: string) => {
     const placeholders = {
-      sports: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=200&fit=crop&auto=format',
+      sports: sportsImage,
       crypto: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=200&fit=crop&auto=format',
       politics: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=400&h=200&fit=crop&auto=format',
       entertainment: 'https://images.unsplash.com/photo-1489599363715-049ef8e7e4ee?w=400&h=200&fit=crop&auto=format',
-      default: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop&auto=format'
+      default: sportsImage
     };
     return placeholders[category as keyof typeof placeholders] || placeholders.default;
   };
@@ -55,20 +59,29 @@ export function PredictionCard({ market, showFull = false }: PredictionCardProps
   const mainOptions = market.options.slice(0, 2);
   const additionalOptions = market.options.slice(2);
 
+  const cardClasses = variant === 'hero' 
+    ? "bg-gradient-to-br from-surface to-surface/80 border border-accent/50 rounded-xl overflow-hidden hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 group relative"
+    : "bg-surface border border-border rounded-xl overflow-hidden hover:border-accent hover:shadow-lg hover:scale-[1.02] transition-all duration-200 group";
+
   return (
-    <div className="bg-surface border border-border rounded-xl overflow-hidden hover:border-accent transition-colors group" data-testid={`prediction-card-${market.id}`}>
+    <div className={cardClasses} data-testid={`prediction-card-${market.id}`}>
       {/* Image and Status */}
       <div className="relative">
-        <img 
-          src={market.image || getPlaceholderImage(market.category)} 
-          alt={market.title}
-          className="w-full h-40 sm:h-48 object-cover"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = getPlaceholderImage(market.category);
-          }}
-          data-testid={`prediction-image-${market.id}`}
-        />
+        <AspectRatio ratio={16 / 9}>
+          <img 
+            src={market.image || getPlaceholderImage(market.category)} 
+            alt={market.title}
+            className={`w-full h-full object-cover ${variant === 'hero' ? 'filter brightness-90' : ''}`}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = getPlaceholderImage(market.category);
+            }}
+            data-testid={`prediction-image-${market.id}`}
+          />
+          {variant === 'hero' && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+          )}
+        </AspectRatio>
         <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-wrap items-center gap-1 sm:gap-2">
           <Badge variant={market.isActive ? "default" : "secondary"} className="text-xs">
             {market.isActive ? "Live" : "Ended"}
@@ -127,49 +140,73 @@ export function PredictionCard({ market, showFull = false }: PredictionCardProps
           </div>
         </div>
 
-        {/* Market Type Indicator */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="text-xs">
-              {market.marketType === 'binary' ? 'Yes/No' : 
-               market.marketType === 'multiple_choice' ? 'Multiple Choice' : 'Compound'}
-            </Badge>
-            <span className="text-xs text-muted-foreground">
-              {market.options.length} options
-            </span>
+        {/* Market Type Indicator and Binary Progress Bar */}
+        <div className="space-y-3 mb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="text-xs">
+                {market.marketType === 'binary' ? 'Yes/No' : 
+                 market.marketType === 'multiple_choice' ? 'Multiple Choice' : 'Compound'}
+              </Badge>
+              <span className="text-xs text-muted-foreground">
+                {market.options.length} options
+              </span>
+            </div>
           </div>
+          
+          {/* Segmented Progress Bar for Binary Markets */}
+          {market.marketType === 'binary' && market.options.length >= 2 && (
+            <div className="flex rounded-lg overflow-hidden h-2 bg-muted">
+              <div 
+                className="h-full transition-all duration-300"
+                style={{ 
+                  width: `${market.options[0].percentage}%`, 
+                  backgroundColor: market.options[0].color 
+                }}
+              />
+              <div 
+                className="h-full transition-all duration-300"
+                style={{ 
+                  width: `${market.options[1].percentage}%`, 
+                  backgroundColor: market.options[1].color 
+                }}
+              />
+            </div>
+          )}
         </div>
 
         {/* Prediction Options with Scrolling */}
         <Link href={`/prediction/${market.id}`} className="block">
-          <div className="space-y-2 mb-3 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-background">
-            {market.options.map((option, index) => (
-              <div
-                key={option.id}
-                className={`flex items-center justify-between p-2 sm:p-3 rounded-lg border-2 transition-all hover:scale-[1.01] group`}
-                style={{ borderColor: option.color + '40' }}
-                data-testid={`prediction-option-${option.id}`}
-              >
-                <div className="flex items-center space-x-2 flex-1">
-                  <div 
-                    className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: option.color }}
-                  />
-                  <span className="font-medium text-sm sm:text-base truncate group-hover:text-accent transition-colors">
-                    {option.label}
-                  </span>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="font-bold text-sm" style={{ color: option.color }}>
-                    {option.percentage}%
+          <ScrollArea className={`mb-3 ${variant === 'hero' ? 'max-h-40' : 'max-h-32'}`}>
+            <div className="space-y-2 pr-2">
+              {market.options.map((option, index) => (
+                <div
+                  key={option.id}
+                  className={`flex items-center justify-between p-2 sm:p-3 rounded-lg border-2 transition-all hover:scale-[1.01] group ${variant === 'hero' ? 'hover:shadow-md' : ''}`}
+                  style={{ borderColor: option.color + '40' }}
+                  data-testid={`prediction-option-${option.id}`}
+                >
+                  <div className="flex items-center space-x-2 flex-1">
+                    <div 
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: option.color }}
+                    />
+                    <span className="font-medium text-sm sm:text-base truncate group-hover:text-accent transition-colors">
+                      {option.label}
+                    </span>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {option.odds.toFixed(2)}x
+                  <div className="text-right flex-shrink-0">
+                    <div className="font-bold text-sm" style={{ color: option.color }}>
+                      {option.percentage}%
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {option.odds.toFixed(2)}x
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </ScrollArea>
         </Link>
 
         {/* Show scroll indicator if more than 3 options */}
