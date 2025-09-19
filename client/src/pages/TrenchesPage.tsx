@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { useOdinAPI, type OdinTokenData } from '@/hooks/useOdinAPI';
-import { useAstroApeAPI } from '@/hooks/useAstroApeAPI';
-import { useTycheAPI } from '@/hooks/useTycheAPI';
+import { useOdinAPI, type OdinTokenData, getOdinImageUrl } from '@/hooks/useOdinAPI';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { TokenCard } from '@/components/trading/TokenCard';
 import { Button } from '@/components/ui/button';
@@ -39,7 +37,7 @@ function convertOdinTokenToTokenCard(token: OdinTokenData) {
     isBundled: token.bonded,
     isVerified: token.verified,
     category: categorizeOdinToken(token),
-    avatar: token.image || `https://placehold.co/40x40/f3f4f6/9ca3af?text=${token.ticker.charAt(0)}`
+    avatar: getOdinImageUrl('token', token.id)
   };
 }
 
@@ -75,14 +73,12 @@ function getTimeAgo(dateString: string): string {
 export default function TrenchesPage() {
   const { t } = useLanguage();
   const { tokens: odinTokens, isLoading: odinLoading } = useOdinAPI({ bonded: false }); // Focus on unbonded tokens for trenches
-  const { tokens: astroapeTokens, isLoading: astroapeLoading } = useAstroApeAPI();
-  const { tokens: tycheTokens, isLoading: tycheLoading } = useTycheAPI();
   
-  const isLoading = odinLoading || astroapeLoading || tycheLoading;
+  const isLoading = odinLoading;
 
   // Convert Odin tokens to compatible format and categorize
   const convertedOdinTokens = odinTokens.map(convertOdinTokenToTokenCard);
-  const allTokens = [...convertedOdinTokens, ...astroapeTokens, ...tycheTokens];
+  const allTokens = convertedOdinTokens;
 
   // Categorize tokens based on their lifecycle
   const newlyCreated = allTokens.filter(token => token.category === 'newly_created');

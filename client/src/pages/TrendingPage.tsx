@@ -105,6 +105,11 @@ function getTimeAgo(dateString: string): string {
   return "Just now";
 }
 
+// Function to get Odin image URL
+function getOdinImageUrl(type: string, id: string): string {
+  return `${ODIN_API_BASE}/${type}/${id}/image`;
+}
+
 export default function TrendingPage() {
   const { t } = useLanguage();
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -134,9 +139,9 @@ export default function TrendingPage() {
   // Helper function to check if token matches age filter
   const matchesAgeFilter = (token: OdinTokenData, ageFilter: string): boolean => {
     if (ageFilter === 'all') return true;
-    
+
     const ageInHours = getTokenAgeInHours(token.created_time);
-    
+
     switch (ageFilter) {
       case '1h': return ageInHours < 1;
       case '1-6h': return ageInHours >= 1 && ageInHours < 6;
@@ -165,7 +170,7 @@ export default function TrendingPage() {
     const matchesSearch = 
       token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       token.ticker.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     if (!matchesSearch) return false;
 
     // Market cap filters
@@ -379,14 +384,11 @@ export default function TrendingPage() {
                         className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
                       >
                         <img
-                          // --- ✅ CORRECTED LINE ---
-                          src={`${ODIN_API_BASE}/token/${token.id}/image`}
+                          src={getOdinImageUrl('token', token.id)}
                           alt={token.name}
                           className="w-10 h-10 rounded-full bg-gray-100"
                           onError={(e) => {
-                            e.currentTarget.src =
-                              "https://placehold.co/40x40/f3f4f6/9ca3af?text=" +
-                              token.ticker.charAt(0);
+                            e.currentTarget.src = `https://placehold.co/40x40/f3f4f6/9ca3af?text=${token.ticker?.charAt(0) || 'T'}`;
                           }}
                           data-testid={`img-token-avatar-${token.id}`}
                         />

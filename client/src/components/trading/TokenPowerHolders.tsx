@@ -6,6 +6,22 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Crown, User, DollarSign, TrendingUp } from 'lucide-react';
 
+// Assume getOdinImageUrl is defined elsewhere or needs to be defined here.
+// For the purpose of this example, let's assume it's available in the scope.
+// If it's not, this code would require the definition of getOdinImageUrl.
+// Example placeholder definition:
+// const getOdinImageUrl = (type: string, id: string | undefined) => {
+//   if (!id) return `https://placehold.co/32x32/f3f4f6/9ca3af?text=U`;
+//   if (type === 'user') {
+//     return `https://api.odin.fun/v1/user/${id}/image`;
+//   }
+//   if (type === 'token') {
+//     return `https://api.odin.fun/v1/token/${id}/image`;
+//   }
+//   return `https://placehold.co/32x32/f3f4f6/9ca3af?text=U`;
+// };
+
+
 interface TokenPowerHoldersProps {
   tokenId: string;
 }
@@ -23,11 +39,26 @@ function formatFiatValue(value: number): string {
   return `$${value.toFixed(2)}`;
 }
 
+// Assuming getOdinImageUrl is defined in the same scope or imported.
+// If getOdinImageUrl is not defined, it needs to be added.
+// For this example, we will assume it exists and is correctly imported or defined.
+// A placeholder for getOdinImageUrl to make the code runnable:
+const getOdinImageUrl = (type: 'user' | 'token', id: string | undefined): string => {
+  if (!id) return `https://placehold.co/32x32/f3f4f6/9ca3af?text=U`;
+  if (type === 'user') {
+    return `https://api.odin.fun/v1/user/${id}/image`;
+  }
+  if (type === 'token') {
+    return `https://api.odin.fun/v1/token/${id}/image`;
+  }
+  return `https://placehold.co/32x32/f3f4f6/9ca3af?text=U`;
+};
+
 export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<'balance' | 'fiat_value'>('balance');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  
+
   const { powerHolders, totalCount, isLoading, error } = useOdinTokenPowerHolders(tokenId, currentPage, 20);
 
   const handleSort = (field: 'balance' | 'fiat_value') => {
@@ -178,7 +209,7 @@ export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
                   {sortedHolders.map((holder, index) => {
                     const percentage = totalBalance > 0 ? (holder.balance / totalBalance) * 100 : 0;
                     const isTopHolder = index < 3;
-                    
+
                     return (
                       <TableRow key={holder.user} className="hover:bg-muted/50">
                         <TableCell>
@@ -192,17 +223,14 @@ export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            {holder.user_image ? (
-                              <img 
-                                src={holder.user_image} 
-                                alt={holder.user_username || "User"}
-                                className="w-8 h-8 rounded-full"
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                                <User className="w-4 h-4" />
-                              </div>
-                            )}
+                            <img
+                              src={getOdinImageUrl('user', holder.user)}
+                              alt={holder.user_username || 'User'}
+                              className="w-8 h-8 rounded-full"
+                              onError={(e) => {
+                                e.currentTarget.src = `https://placehold.co/32x32/f3f4f6/9ca3af?text=${holder.user_username?.charAt(0) || 'U'}`;
+                              }}
+                            />
                             <div>
                               <div className="font-medium text-sm">
                                 {holder.user_username || `${holder.user?.slice(0, 8) || 'Unknown'}...`}

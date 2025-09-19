@@ -12,18 +12,25 @@ interface TokenCardProps {
 
 export function TokenCard({ token, showTradeButton = false }: TokenCardProps) {
   const { t } = useLanguage();
-  
+
   const isPositive = (change: string) => change.startsWith('+');
-  
+
+  // Construct the Odin image URL
+  const odinImageUrl = token.isToken ? `https://api.odin.fun/v1/token/${token.id}/image` : `https://api.odin.fun/v1/user/${token.id}/image`;
+
   return (
     <div className="p-4 border-b border-border hover:bg-muted/50 transition-colors cursor-pointer" data-testid={`token-card-${token.id}`}>
       <Link href={`/token/${token.id}`}>
         <div className="flex items-start space-x-3">
-          <img 
-            src={token.avatar || "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=48&h=48&fit=crop"} 
+          <img
+            src={token.avatar || odinImageUrl} // Use Odin image URL if token.avatar is not available
             alt={token.name}
             className="w-12 h-12 rounded-full border-2 border-border"
             data-testid={`token-avatar-${token.id}`}
+            onError={(e) => {
+              // Fallback to a generic placeholder if Odin image also fails
+              e.currentTarget.src = `https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=48&h=48&fit=crop`;
+            }}
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
@@ -35,7 +42,7 @@ export function TokenCard({ token, showTradeButton = false }: TokenCardProps) {
                 <span className="text-xs text-muted-foreground">0</span>
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-muted-foreground" data-testid={`token-symbol-${token.id}`}>
                 {token.symbol}
@@ -45,7 +52,7 @@ export function TokenCard({ token, showTradeButton = false }: TokenCardProps) {
                 <span className="text-xs text-muted-foreground">0</span>
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-muted-foreground">
                 <span>{token.age}</span>
@@ -63,7 +70,7 @@ export function TokenCard({ token, showTradeButton = false }: TokenCardProps) {
                 </span>
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center space-x-1">
                 <span className="text-muted-foreground">Bundled:</span>
@@ -78,18 +85,18 @@ export function TokenCard({ token, showTradeButton = false }: TokenCardProps) {
                 </span>
               </div>
             </div>
-            
+
             <div className="text-xs text-muted-foreground mt-1">
               <span>MC: </span>
               <span data-testid={`token-market-cap-${token.id}`}>{token.marketCap}</span>
               <span className="ml-2">Vol: </span>
               <span data-testid={`token-volume-${token.id}`}>{token.volume24h}</span>
             </div>
-            
+
             {showTradeButton && (
               <div className="mt-3">
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
                   data-testid={`button-trade-${token.id}`}
                 >

@@ -36,11 +36,17 @@ function formatPrice(price: number): string {
   return `$${price.toFixed(4)}`;
 }
 
+// Helper function to get Odin image URLs
+function getOdinImageUrl(type: 'user' | 'token', id: string | undefined): string {
+  if (!id) return `https://placehold.co/24x24/f3f4f6/9ca3af?text=U`;
+  return `https://api.odin.fun/v1/${type}/${id}/image`;
+}
+
 export function TokenTrades({ tokenId }: TokenTradesProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<'time' | 'amount_btc' | 'price'>('time');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  
+
   const { trades, totalCount, isLoading, error } = useOdinTokenTrades(tokenId, currentPage, 20);
 
   const handleSort = (field: 'time' | 'amount_btc' | 'price') => {
@@ -223,10 +229,13 @@ export function TokenTrades({ tokenId }: TokenTradesProps) {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {trade.user_image ? (
-                            <img 
-                              src={trade.user_image} 
-                              alt={trade.user_username || "User"}
+                            <img
+                              src={getOdinImageUrl('user', trade.user)}
+                              alt={trade.user_username || 'User'}
                               className="w-6 h-6 rounded-full"
+                              onError={(e) => {
+                                e.currentTarget.src = `https://placehold.co/24x24/f3f4f6/9ca3af?text=${trade.user_username?.charAt(0) || 'U'}`;
+                              }}
                             />
                           ) : (
                             <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">

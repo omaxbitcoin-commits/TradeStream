@@ -280,5 +280,10 @@ export function useOdinTokenPowerHolders(tokenId: string, page: number = 1, limi
   };
 }
 
+// Helper function to get image URLs
+export function getOdinImageUrl(type: 'token' | 'user', id: string): string {
+  return `${ODIN_API_BASE}/${type}/${id}/image`;
+}
+
 // Export types for use in other components
 export type { OdinTokenData, OdinTradeData, OdinPowerHolderData, OdinTokensResponse, OdinTradesResponse, OdinPowerHoldersResponse };

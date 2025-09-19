@@ -1,6 +1,6 @@
 import { useParams } from "wouter";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useOdinToken } from "../hooks/useOdinAPI";
+import { useOdinToken, getOdinImageUrl } from "../hooks/useOdinAPI";
 import { PriceChart } from "../components/trading/PriceChart";
 import { TradingInterface } from "../components/trading/TradingInterface";
 import { TokenTrades } from "../components/trading/TokenTrades";
@@ -123,8 +123,7 @@ export default function TokenPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-4">
                   <img
-                    // --- ✅ CORRECTED LINE ---
-                    src={`${ODIN_API_BASE}/token/${token.id}/image`}
+                    src={getOdinImageUrl('token', token.id)}
                     alt={token.name}
                     className="w-10 h-10 rounded-full bg-gray-100"
                     onError={(e) => {
