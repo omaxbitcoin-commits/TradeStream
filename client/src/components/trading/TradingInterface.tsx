@@ -18,7 +18,15 @@ export function TradingInterface({ tokenSymbol }: TradingInterfaceProps) {
   const quickAmounts = [0.1, 0.25, 0.5, 1, 2, 5];
 
   const handleTrade = () => {
+    // This will be replaced by SwapComponent integration
+    // For now, provide user feedback about the swap functionality
     console.log(`Executing ${tradeType} order for ${amount} ${tokenSymbol}`);
+    
+    // In production, this would:
+    // 1. Open swap modal with pre-filled values
+    // 2. Execute swap via SwapComponent
+    // 3. Show transaction confirmation
+    alert(`Ready to ${tradeType} ${amount} ${tokenSymbol}. Use the dedicated Swap component for actual transactions.`);
   };
 
   return (

@@ -3,6 +3,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useOdinToken, getOdinImageUrl } from "../hooks/useOdinAPI";
 import { PriceChart } from "../components/trading/PriceChart";
 import { TradingInterface } from "../components/trading/TradingInterface";
+import { SwapComponent } from "../components/trading/SwapComponent";
 import { TokenTrades } from "../components/trading/TokenTrades";
 import { TokenPowerHolders } from "../components/trading/TokenPowerHolders";
 import { Button } from "../components/ui/button";
@@ -381,6 +382,9 @@ export default function TokenPage() {
 
           {/* Trading Interface */}
           <TradingInterface tokenSymbol={token.ticker} />
+
+          {/* Swap Component - Real Trading */}
+          <SwapComponent tokenSymbol={token.ticker} tokenId={token.id} />
 
           {/* Additional Token Stats */}
           <Card>

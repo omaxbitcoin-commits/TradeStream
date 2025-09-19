@@ -902,6 +902,137 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Swap API endpoints
+  app.post("/api/swap/quote", async (req, res) => {
+    try {
+      const { fromToken, toToken, amount, slippage } = req.body;
+      
+      if (!fromToken || !toToken || !amount) {
+        return res.status(400).json({
+          success: false,
+          error: "Missing required parameters"
+        });
+      }
+
+      // Simulate bonding curve pricing for Odin tokens
+      const baseRate = fromToken === 'BTC' ? 21000000 : 0.0000476; // Approximate BTC to token rate
+      const inputAmount = parseFloat(amount);
+      
+      // Calculate price impact based on trade size
+      const priceImpact = Math.min(inputAmount * 0.001, 0.05); // Max 5% impact
+      const adjustedRate = baseRate * (1 - priceImpact);
+      
+      const outputAmount = fromToken === 'BTC' 
+        ? (inputAmount * adjustedRate).toFixed(0) 
+        : (inputAmount / adjustedRate).toFixed(8);
+      
+      const fee = inputAmount * 0.005; // 0.5% fee
+      
+      const quote = {
+        inputAmount: amount,
+        outputAmount,
+        rate: adjustedRate,
+        priceImpact: priceImpact * 100,
+        fee,
+        estimatedGas: 0.00001,
+        slippage: slippage || 0.5
+      };
+
+      res.json({
+        success: true,
+        data: quote
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to get swap quote"
+      });
+    }
+  });
+
+  app.post("/api/swap/execute", async (req, res) => {
+    try {
+      const { fromToken, toToken, fromAmount, toAmount, slippage } = req.body;
+      
+      if (!fromToken || !toToken || !fromAmount || !toAmount) {
+        return res.status(400).json({
+          success: false,
+          error: "Missing required parameters"
+        });
+      }
+
+      // Simulate transaction execution
+      const transactionId = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // In production, this would:
+      // 1. Validate wallet balances
+      // 2. Execute the swap on-chain
+      // 3. Update user balances
+      // 4. Return transaction hash
+      
+      const swapTransaction = {
+        transactionId,
+        status: 'pending' as const,
+        inputToken: fromToken,
+        outputToken: toToken,
+        inputAmount: fromAmount,
+        outputAmount: toAmount,
+        timestamp: Date.now()
+      };
+
+      // Simulate confirmation after 3 seconds
+      setTimeout(() => {
+        console.log(`Transaction ${transactionId} confirmed`);
+      }, 3000);
+
+      res.json({
+        success: true,
+        data: swapTransaction
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to execute swap"
+      });
+    }
+  });
+
+  app.get("/api/swap/history", async (req, res) => {
+    try {
+      // Mock swap history
+      const history = [
+        {
+          transactionId: "tx_1705123456_abc123",
+          status: "confirmed",
+          inputToken: "BTC",
+          outputToken: "ODIN",
+          inputAmount: "0.00100000",
+          outputAmount: "21000",
+          timestamp: Date.now() - 3600000
+        },
+        {
+          transactionId: "tx_1705123400_def456",
+          status: "confirmed",
+          inputToken: "ODIN",
+          outputToken: "BTC",
+          inputAmount: "10500",
+          outputAmount: "0.00050000",
+          timestamp: Date.now() - 7200000
+        }
+      ];
+
+      res.json({
+        success: true,
+        data: history
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch swap history"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

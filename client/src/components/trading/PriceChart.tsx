@@ -354,7 +354,7 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
                 <Bar
                   dataKey="high"
                   fill="transparent"
-                  shape={(props) => <CandlestickBar {...props} />}
+                  shape={(props: any) => <CandlestickBar {...props} />}
                   isAnimationActive={false}
                 />
               )}
