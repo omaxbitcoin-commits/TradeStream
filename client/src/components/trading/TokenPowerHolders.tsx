@@ -184,7 +184,7 @@ export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {isTopHolder ? (
-                              <Crown className="w-4 h-4 text-warning" />
+                              <Crown className="w-4 h-4 text-yellow-500" />
                             ) : (
                               <span className="text-sm text-muted-foreground">#{index + 1}</span>
                             )}
@@ -205,10 +205,10 @@ export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
                             )}
                             <div>
                               <div className="font-medium text-sm">
-                                {holder.user_username || `${holder.user.slice(0, 8)}...`}
+                                {holder.user_username || `${holder.user?.slice(0, 8) || 'Unknown'}...`}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                {holder.user.slice(0, 6)}...{holder.user.slice(-4)}
+                                {holder.user ? `${holder.user.slice(0, 6)}...${holder.user.slice(-4)}` : 'Unknown'}
                               </div>
                             </div>
                           </div>
@@ -229,7 +229,7 @@ export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
                               {percentage.toFixed(2)}%
                             </div>
                             {percentage > 5 && (
-                              <TrendingUp className="w-3 h-3 text-warning" />
+                              <TrendingUp className="w-3 h-3 text-yellow-500" />
                             )}
                           </div>
                         </TableCell>

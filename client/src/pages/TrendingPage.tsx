@@ -111,16 +111,95 @@ export default function TrendingPage() {
   const [activeTimeframe, setActiveTimeframe] = useState("1M");
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilters, setActiveFilters] = useState({
+    minMarketCap: '',
+    maxMarketCap: '',
+    minVolume: '',
+    maxVolume: '',
+    tokenAge: 'all',
+    hideBundled: false,
+    onlyVerified: false,
+  });
 
   // Use Odin API hook
   const { tokens: odinTokens, isLoading, error } = useOdinTokens();
 
-  // Filter tokens based on search
-  const filteredTokens = odinTokens.filter(
-    (token) =>
+  // Helper function to check token age
+  const getTokenAgeInHours = (createdTime: string): number => {
+    const now = new Date();
+    const created = new Date(createdTime);
+    return (now.getTime() - created.getTime()) / (1000 * 60 * 60);
+  };
+
+  // Helper function to check if token matches age filter
+  const matchesAgeFilter = (token: OdinTokenData, ageFilter: string): boolean => {
+    if (ageFilter === 'all') return true;
+    
+    const ageInHours = getTokenAgeInHours(token.created_time);
+    
+    switch (ageFilter) {
+      case '1h': return ageInHours < 1;
+      case '1-6h': return ageInHours >= 1 && ageInHours < 6;
+      case '6-24h': return ageInHours >= 6 && ageInHours < 24;
+      case '1d+': return ageInHours >= 24;
+      default: return true;
+    }
+  };
+
+  // Count active filters
+  const countActiveFilters = (): number => {
+    let count = 0;
+    if (activeFilters.minMarketCap) count++;
+    if (activeFilters.maxMarketCap) count++;
+    if (activeFilters.minVolume) count++;
+    if (activeFilters.maxVolume) count++;
+    if (activeFilters.tokenAge !== 'all') count++;
+    if (activeFilters.hideBundled) count++;
+    if (activeFilters.onlyVerified) count++;
+    return count;
+  };
+
+  // Apply all filters
+  const filteredTokens = odinTokens.filter((token) => {
+    // Search filter
+    const matchesSearch = 
       token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      token.ticker.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+      token.ticker.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (!matchesSearch) return false;
+
+    // Market cap filters
+    if (activeFilters.minMarketCap && token.marketcap < parseFloat(activeFilters.minMarketCap)) {
+      return false;
+    }
+    if (activeFilters.maxMarketCap && token.marketcap > parseFloat(activeFilters.maxMarketCap)) {
+      return false;
+    }
+
+    // Volume filters
+    if (activeFilters.minVolume && token.volume_24 < parseFloat(activeFilters.minVolume)) {
+      return false;
+    }
+    if (activeFilters.maxVolume && token.volume_24 > parseFloat(activeFilters.maxVolume)) {
+      return false;
+    }
+
+    // Age filter
+    if (!matchesAgeFilter(token, activeFilters.tokenAge)) {
+      return false;
+    }
+
+    // Security filters (Note: Odin API doesn't have these fields yet, but preparing for future)
+    // if (activeFilters.hideBundled && token.bundled) return false;
+    // if (activeFilters.onlyVerified && !token.verified) return false;
+
+    return true;
+  });
+
+  // Handle filter application
+  const handleApplyFilters = (filters: any) => {
+    setActiveFilters(filters);
+  };
 
   const timeframes = ["1M", "5M", "30M", "1H"];
 
@@ -188,7 +267,7 @@ export default function TrendingPage() {
               className="bg-success text-white text-xs px-2 py-1 rounded-full"
               data-testid="text-active-filters"
             >
-              0
+              {countActiveFilters()}
             </span>
           </Button>
         </div>
@@ -490,9 +569,7 @@ export default function TrendingPage() {
       <FilterModal
         isOpen={showFilterModal}
         onClose={() => setShowFilterModal(false)}
-        onApply={(filters) => {
-          console.log("Applied filters:", filters);
-        }}
+        onApply={handleApplyFilters}
       />
       <SettingsModal
         isOpen={showSettingsModal}

@@ -235,10 +235,10 @@ export function TokenTrades({ tokenId }: TokenTradesProps) {
                           )}
                           <div>
                             <div className="font-medium text-sm">
-                              {trade.user_username || `${trade.user.slice(0, 8)}...`}
+                              {trade.user_username || `${trade.user?.slice(0, 8) || 'Unknown'}...`}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {trade.user.slice(0, 6)}...{trade.user.slice(-4)}
+                              {trade.user ? `${trade.user.slice(0, 6)}...${trade.user.slice(-4)}` : 'Unknown'}
                             </div>
                           </div>
                         </div>
