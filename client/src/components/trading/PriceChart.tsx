@@ -34,7 +34,7 @@ interface CandlestickData {
 }
 
 // Custom candlestick bar component
-const CandlestickBar = (props: any) => {
+const CandlestickBar = (props: { payload?: any; x?: number; y?: number; width?: number; height?: number }) => {
   const { payload } = props;
   if (!payload || !payload.payload) return null;
 
