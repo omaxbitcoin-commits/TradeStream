@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useOdinAPI } from '@/hooks/useOdinAPI';
+import { useOdinAPI, type OdinTokenData } from '@/hooks/useOdinAPI';
 import { useAstroApeAPI } from '@/hooks/useAstroApeAPI';
 import { useTycheAPI } from '@/hooks/useTycheAPI';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -7,14 +7,82 @@ import { TokenCard } from '@/components/trading/TokenCard';
 import { Button } from '@/components/ui/button';
 import { Clock, Star, Search, Filter, MoreVertical, Heart, DollarSign } from 'lucide-react';
 
+// Helper function to categorize Odin tokens based on their properties
+function categorizeOdinToken(token: OdinTokenData): 'newly_created' | 'about_to_graduate' | 'graduated' {
+  // Use bonded status and progress to categorize
+  if (token.bonded) {
+    return 'graduated';
+  } else if (token.progress && token.progress > 0.7) {
+    return 'about_to_graduate';
+  } else {
+    return 'newly_created';
+  }
+}
+
+// Convert OdinTokenData to the format expected by TokenCard
+function convertOdinTokenToTokenCard(token: OdinTokenData) {
+  return {
+    id: token.id,
+    name: token.name,
+    symbol: token.ticker,
+    contractAddress: token.id, // Use token ID as contract address for Odin
+    price: `$${token.price.toFixed(8)}`,
+    marketCap: formatNumber(token.marketcap),
+    volume24h: formatNumber(token.volume_24),
+    change5m: formatPriceChange(token.price, token.price_5m),
+    change1h: formatPriceChange(token.price, token.price_1h),
+    change6h: formatPriceChange(token.price, token.price_6h),
+    change24h: formatPriceChange(token.price, token.price_1d),
+    holders: token.holder_count,
+    liquidity: formatNumber(token.btc_liquidity),
+    age: getTimeAgo(token.created_time),
+    isBundled: token.bonded,
+    isVerified: token.verified,
+    category: categorizeOdinToken(token),
+    avatar: token.image || `https://placehold.co/40x40/f3f4f6/9ca3af?text=${token.ticker.charAt(0)}`
+  };
+}
+
+// Utility functions
+function formatNumber(num: number): string {
+  if (num >= 1e9) return `${(num / 1e9).toFixed(2)}B`;
+  if (num >= 1e6) return `${(num / 1e6).toFixed(2)}M`;
+  if (num >= 1e3) return `${(num / 1e3).toFixed(2)}K`;
+  return num.toFixed(2);
+}
+
+function formatPriceChange(current: number, previous: number): string {
+  if (previous === 0) return "+0.00%";
+  const percentage = ((current - previous) / previous) * 100;
+  const sign = percentage >= 0 ? "+" : "";
+  return `${sign}${percentage.toFixed(2)}%`;
+}
+
+function getTimeAgo(dateString: string): string {
+  const now = new Date();
+  const created = new Date(dateString);
+  const diffMs = now.getTime() - created.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+  if (diffDays > 0) return `${diffDays}d ago`;
+  if (diffHours > 0) return `${diffHours}h ago`;
+  if (diffMinutes > 0) return `${diffMinutes}m ago`;
+  return "Just now";
+}
+
 export default function TrenchesPage() {
   const { t } = useLanguage();
-  const { tokens: odinTokens, isLoading: odinLoading } = useOdinAPI();
+  const { tokens: odinTokens, isLoading: odinLoading } = useOdinAPI({ bonded: false }); // Focus on unbonded tokens for trenches
   const { tokens: astroapeTokens, isLoading: astroapeLoading } = useAstroApeAPI();
   const { tokens: tycheTokens, isLoading: tycheLoading } = useTycheAPI();
   
   const isLoading = odinLoading || astroapeLoading || tycheLoading;
-  const allTokens = [...odinTokens, ...astroapeTokens, ...tycheTokens];
+
+  // Convert Odin tokens to compatible format and categorize
+  const convertedOdinTokens = odinTokens.map(convertOdinTokenToTokenCard);
+  const allTokens = [...convertedOdinTokens, ...astroapeTokens, ...tycheTokens];
 
   // Categorize tokens based on their lifecycle
   const newlyCreated = allTokens.filter(token => token.category === 'newly_created');
