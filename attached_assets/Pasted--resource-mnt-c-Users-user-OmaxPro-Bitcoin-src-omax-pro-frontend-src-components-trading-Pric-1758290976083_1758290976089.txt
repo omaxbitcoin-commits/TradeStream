@@ -1,0 +1,118 @@
+[{
+	"resource": "/mnt/c/Users/user/OmaxPro.Bitcoin/src/omax-pro-frontend/src/components/trading/PriceChart.tsx",
+	"owner": "typescript",
+	"code": "7006",
+	"severity": 8,
+	"message": "Parameter 'props' implicitly has an 'any' type.",
+	"source": "ts",
+	"startLineNumber": 358,
+	"startColumn": 27,
+	"endLineNumber": 358,
+	"endColumn": 32,
+	"origin": "extHost2"
+},{
+	"resource": "/mnt/c/Users/user/OmaxPro.Bitcoin/src/omax-pro-frontend/src/components/trading/PriceChart.tsx",
+	"owner": "typescript",
+	"code": "6133",
+	"severity": 4,
+	"message": "'React' is declared but its value is never read.",
+	"source": "ts",
+	"startLineNumber": 2,
+	"startColumn": 8,
+	"endLineNumber": 2,
+	"endColumn": 13,
+	"tags": [
+		1
+	],
+	"origin": "extHost2"
+},{
+	"resource": "/mnt/c/Users/user/OmaxPro.Bitcoin/src/omax-pro-frontend/src/components/trading/PriceChart.tsx",
+	"owner": "typescript",
+	"code": "6133",
+	"severity": 4,
+	"message": "'ReferenceLine' is declared but its value is never read.",
+	"source": "ts",
+	"startLineNumber": 15,
+	"startColumn": 3,
+	"endLineNumber": 15,
+	"endColumn": 16,
+	"tags": [
+		1
+	],
+	"origin": "extHost2"
+},{
+	"resource": "/mnt/c/Users/user/OmaxPro.Bitcoin/src/omax-pro-frontend/src/components/trading/PriceChart.tsx",
+	"owner": "typescript",
+	"code": "6133",
+	"severity": 4,
+	"message": "'bodyHeight' is declared but its value is never read.",
+	"source": "ts",
+	"startLineNumber": 64,
+	"startColumn": 9,
+	"endLineNumber": 64,
+	"endColumn": 19,
+	"tags": [
+		1
+	],
+	"origin": "extHost2"
+},{
+	"resource": "/mnt/c/Users/user/OmaxPro.Bitcoin/src/omax-pro-frontend/src/components/trading/PriceChart.tsx",
+	"owner": "typescript",
+	"code": "6133",
+	"severity": 4,
+	"message": "'label' is declared but its value is never read.",
+	"source": "ts",
+	"startLineNumber": 103,
+	"startColumn": 43,
+	"endLineNumber": 103,
+	"endColumn": 48,
+	"tags": [
+		1
+	],
+	"origin": "extHost2"
+},{
+	"resource": "/mnt/c/Users/user/OmaxPro.Bitcoin/src/omax-pro-frontend/src/components/trading/PriceChart.tsx",
+	"owner": "typescript",
+	"code": "6133",
+	"severity": 4,
+	"message": "'activeTab' is declared but its value is never read.",
+	"source": "ts",
+	"startLineNumber": 154,
+	"startColumn": 10,
+	"endLineNumber": 154,
+	"endColumn": 19,
+	"tags": [
+		1
+	],
+	"origin": "extHost2"
+},{
+	"resource": "/mnt/c/Users/user/OmaxPro.Bitcoin/src/omax-pro-frontend/src/components/trading/PriceChart.tsx",
+	"owner": "typescript",
+	"code": "6133",
+	"severity": 4,
+	"message": "'setActiveTab' is declared but its value is never read.",
+	"source": "ts",
+	"startLineNumber": 154,
+	"startColumn": 21,
+	"endLineNumber": 154,
+	"endColumn": 33,
+	"tags": [
+		1
+	],
+	"origin": "extHost2"
+},{
+	"resource": "/mnt/c/Users/user/OmaxPro.Bitcoin/src/omax-pro-frontend/src/components/trading/PriceChart.tsx",
+	"owner": "typescript",
+	"code": "6133",
+	"severity": 4,
+	"message": "'tabs' is declared but its value is never read.",
+	"source": "ts",
+	"startLineNumber": 165,
+	"startColumn": 9,
+	"endLineNumber": 165,
+	"endColumn": 13,
+	"tags": [
+		1
+	],
+	"origin": "extHost2"
+}]
