@@ -1,74 +1,25 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "../contexts/LanguageContext";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { FilterModal } from "../components/modals/FilterModal";
 import { SettingsModal } from "../components/modals/SettingsModal";
+import { 
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../components/ui/pagination";
 import { Search, Filter, Settings, TrendingUp } from "lucide-react";
 
-// Odin API Types
-interface OdinTokenData {
-  id: string;
-  name: string;
-  ticker: string;
-  created_time: string;
-  holder_count: number;
-  price: number;
-  price_5m: number;
-  price_1h: number;
-  price_6h: number;
-  price_1d: number;
-  volume_24: number;
-  marketcap: number;
-  image: string;
-}
+// Import Odin API types and hook
+import { useOdinAPI, type OdinTokenData, getOdinImageUrl } from "../hooks/useOdinAPI";
 
-interface OdinTokensResponse {
-  data: OdinTokenData[];
-  count: number;
-  page: number;
-  limit: number;
-}
 
-// API function
-const ODIN_API_BASE = "https://api.odin.fun/v1";
-
-async function fetchOdinTokens(): Promise<OdinTokensResponse> {
-  const searchParams = new URLSearchParams({
-    page: "1",
-    limit: "100",
-    env: "development",
-    sort: "marketcap:desc",
-    bonded: "true",
-  });
-
-  const response = await fetch(`${ODIN_API_BASE}/tokens?${searchParams}`);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch Odin tokens: ${response.statusText}`);
-  }
-
-  return response.json();
-}
-
-// Hook for Odin tokens
-function useOdinTokens() {
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["odin", "tokens"],
-    queryFn: fetchOdinTokens,
-    refetchInterval: 10000, // 30 seconds
-  });
-
-  return {
-    tokens: data?.data || [],
-    totalCount: data?.count || 0,
-    isLoading,
-    error,
-    refetch,
-  };
-}
 
 // Utility functions
 function formatNumber(num: number): string {
@@ -105,10 +56,7 @@ function getTimeAgo(dateString: string): string {
   return "Just now";
 }
 
-// Function to get Odin image URL
-function getOdinImageUrl(type: string, id: string): string {
-  return `${ODIN_API_BASE}/${type}/${id}/image`;
-}
+
 
 export default function TrendingPage() {
   const { t } = useLanguage();
@@ -116,6 +64,8 @@ export default function TrendingPage() {
   const [activeTimeframe, setActiveTimeframe] = useState("1M");
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
   const [activeFilters, setActiveFilters] = useState({
     minMarketCap: '',
     maxMarketCap: '',
@@ -126,8 +76,13 @@ export default function TrendingPage() {
     onlyVerified: false,
   });
 
-  // Use Odin API hook
-  const { tokens: odinTokens, isLoading, error } = useOdinTokens();
+  // Use Odin API hook with pagination
+  const { tokens: odinTokens, totalCount, isLoading, error } = useOdinAPI({
+    page: currentPage,
+    limit: pageSize,
+    sort: "marketcap:desc",
+    bonded: true
+  });
 
   // Helper function to check token age
   const getTokenAgeInHours = (createdTime: string): number => {
@@ -164,42 +119,27 @@ export default function TrendingPage() {
     return count;
   };
 
-  // Apply all filters
+  // Apply client-side filters (some filters like search need to be client-side)
   const filteredTokens = odinTokens.filter((token) => {
-    // Search filter
+    // Search filter (client-side for real-time filtering)
     const matchesSearch = 
       token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       token.ticker.toLowerCase().includes(searchTerm.toLowerCase());
 
     if (!matchesSearch) return false;
 
-    // Market cap filters
-    if (activeFilters.minMarketCap && token.marketcap < parseFloat(activeFilters.minMarketCap)) {
-      return false;
-    }
-    if (activeFilters.maxMarketCap && token.marketcap > parseFloat(activeFilters.maxMarketCap)) {
-      return false;
-    }
-
-    // Volume filters
-    if (activeFilters.minVolume && token.volume_24 < parseFloat(activeFilters.minVolume)) {
-      return false;
-    }
-    if (activeFilters.maxVolume && token.volume_24 > parseFloat(activeFilters.maxVolume)) {
-      return false;
-    }
-
-    // Age filter
+    // Age filter (client-side)
     if (!matchesAgeFilter(token, activeFilters.tokenAge)) {
       return false;
     }
 
-    // Security filters (Note: Odin API doesn't have these fields yet, but preparing for future)
-    // if (activeFilters.hideBundled && token.bundled) return false;
-    // if (activeFilters.onlyVerified && !token.verified) return false;
-
     return true;
   });
+
+  // Calculate pagination info
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const startItem = (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, totalCount);
 
   // Handle filter application
   const handleApplyFilters = (filters: any) => {
@@ -255,8 +195,25 @@ export default function TrendingPage() {
               className="bg-accent text-accent-foreground text-xs px-2 py-1 rounded-full"
               data-testid="text-token-count"
             >
-              {filteredTokens.length}
+              {totalCount.toLocaleString()}
             </span>
+          </div>
+
+          {/* Page Size Selector */}
+          <div className="flex items-center space-x-2 bg-surface rounded-lg px-3 py-2">
+            <span className="text-sm text-muted-foreground">Show:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1); // Reset to first page when changing page size
+              }}
+              className="bg-transparent text-sm text-foreground border-none outline-none"
+            >
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
           </div>
 
           {/* Extra Filters */}
@@ -308,6 +265,18 @@ export default function TrendingPage() {
           <p className="text-destructive text-sm">
             Failed to load token data from Odin API. Please try again later.
           </p>
+        </div>
+      )}
+
+      {/* Pagination Info */}
+      {!isLoading && totalCount > 0 && (
+        <div className="flex justify-between items-center mb-4 text-sm text-muted-foreground">
+          <span>
+            Showing {startItem.toLocaleString()} to {endItem.toLocaleString()} of {totalCount.toLocaleString()} tokens
+          </span>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
         </div>
       )}
 
@@ -566,6 +535,89 @@ export default function TrendingPage() {
           </div>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {!isLoading && totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              
+              {/* First page */}
+              {currentPage > 3 && (
+                <>
+                  <PaginationItem>
+                    <PaginationLink 
+                      onClick={() => setCurrentPage(1)}
+                      isActive={currentPage === 1}
+                      className="cursor-pointer"
+                    >
+                      1
+                    </PaginationLink>
+                  </PaginationItem>
+                  {currentPage > 4 && (
+                    <PaginationItem>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )}
+                </>
+              )}
+              
+              {/* Current page and neighbors */}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const startPage = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+                const pageNumber = startPage + i;
+                
+                if (pageNumber > totalPages) return null;
+                
+                return (
+                  <PaginationItem key={pageNumber}>
+                    <PaginationLink
+                      onClick={() => setCurrentPage(pageNumber)}
+                      isActive={currentPage === pageNumber}
+                      className="cursor-pointer"
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+              
+              {/* Last page */}
+              {currentPage < totalPages - 2 && (
+                <>
+                  {currentPage < totalPages - 3 && (
+                    <PaginationItem>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )}
+                  <PaginationItem>
+                    <PaginationLink 
+                      onClick={() => setCurrentPage(totalPages)}
+                      isActive={currentPage === totalPages}
+                      className="cursor-pointer"
+                    >
+                      {totalPages}
+                    </PaginationLink>
+                  </PaginationItem>
+                </>
+              )}
+              
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       {/* Modals */}
       <FilterModal
