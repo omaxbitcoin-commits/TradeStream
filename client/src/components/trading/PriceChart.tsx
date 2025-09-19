@@ -36,41 +36,64 @@ interface CandlestickData {
 
 // Custom candlestick bar component
 const CandlestickBar = (props: any) => {
-  const { payload, x, y, width, height } = props;
-  if (!payload) return null;
+  const { payload } = props;
+  if (!payload || !payload.payload) return null;
 
-  const { open, high, low, close } = payload;
+  const data = payload.payload;
+  const { open, high, low, close } = data;
+  
+  if (typeof open !== 'number' || typeof high !== 'number' || 
+      typeof low !== 'number' || typeof close !== 'number') {
+    return null;
+  }
+
   const isGreen = close >= open;
   const color = isGreen ? '#10b981' : '#ef4444'; // green-500 : red-500
   
-  const bodyHeight = Math.abs(close - open);
-  const bodyY = Math.min(open, close);
-  const wickTop = Math.max(open, close);
-  const wickBottom = Math.min(open, close);
+  const x = payload.x || 0;
+  const y = payload.y || 0;
+  const width = payload.width || 20;
+  const height = payload.height || 100;
   
-  // Scale values to fit in the bar area
-  const scale = height / (high - low);
+  // Calculate positions relative to the chart scale
+  const priceRange = high - low;
+  if (priceRange === 0) return null;
+  
+  const bodyTop = Math.max(open, close);
+  const bodyBottom = Math.min(open, close);
+  const bodyHeight = Math.abs(close - open);
+  
   const wickX = x + width / 2;
+  const scale = height / priceRange;
+  
+  // Y positions (inverted because SVG y increases downward)
+  const highY = y;
+  const lowY = y + height;
+  const bodyTopY = y + (high - bodyTop) * scale;
+  const bodyBottomY = y + (high - bodyBottom) * scale;
   
   return (
     <g>
       {/* High-Low wick */}
       <line
         x1={wickX}
-        y1={y + (high - wickTop) * scale}
+        y1={highY}
         x2={wickX}
-        y2={y + (high - wickBottom) * scale}
+        y2={lowY}
         stroke={color}
         strokeWidth={1}
+        opacity={0.8}
       />
       {/* Open-Close body */}
       <rect
-        x={x + width * 0.2}
-        y={y + (high - Math.max(open, close)) * scale}
-        width={width * 0.6}
-        height={bodyHeight * scale || 1}
-        fill={color}
+        x={x + width * 0.25}
+        y={bodyTopY}
+        width={width * 0.5}
+        height={Math.max(bodyBottomY - bodyTopY, 1)}
+        fill={isGreen ? color : 'transparent'}
         stroke={color}
+        strokeWidth={isGreen ? 0 : 1}
+        opacity={0.9}
       />
     </g>
   );
@@ -145,6 +168,11 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
   const candlestickData = useMemo(() => {
     if (!trades || trades.length === 0) return [];
 
+    // Sort trades by time first
+    const sortedTrades = [...trades].sort((a, b) => 
+      new Date(a.time).getTime() - new Date(b.time).getTime()
+    );
+
     // Group trades by time intervals
     const intervals: { [key: string]: OdinTradeData[] } = {};
     const intervalMs = timeframe === '5m' ? 5 * 60 * 1000 :
@@ -153,7 +181,10 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
                      timeframe === '4h' ? 4 * 60 * 60 * 1000 :
                      24 * 60 * 60 * 1000; // 1d
 
-    trades.forEach(trade => {
+    sortedTrades.forEach(trade => {
+      // Skip trades with invalid price data
+      if (!trade.price || trade.price <= 0) return;
+      
       const tradeTime = new Date(trade.time).getTime();
       const intervalStart = Math.floor(tradeTime / intervalMs) * intervalMs;
       const intervalKey = intervalStart.toString();
@@ -172,29 +203,37 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
       .forEach(([timestamp, intervalTrades]) => {
         if (intervalTrades.length === 0) return;
 
-        const prices = intervalTrades.map(t => t.price);
+        // Sort trades within interval by time
+        intervalTrades.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+
+        const prices = intervalTrades.map(t => t.price).filter(p => p > 0);
+        if (prices.length === 0) return;
+
         const open = intervalTrades[0].price;
         const close = intervalTrades[intervalTrades.length - 1].price;
         const high = Math.max(...prices);
         const low = Math.min(...prices);
         
+        // Ensure we have valid OHLC data
+        if (!open || !close || !high || !low || high < low) return;
+        
         const buyTrades = intervalTrades.filter(t => t.buy);
         const sellTrades = intervalTrades.filter(t => !t.buy);
         
-        const volume = intervalTrades.reduce((sum, t) => sum + t.amount_token, 0);
-        const buyVolume = buyTrades.reduce((sum, t) => sum + t.amount_token, 0);
-        const sellVolume = sellTrades.reduce((sum, t) => sum + t.amount_token, 0);
+        const volume = intervalTrades.reduce((sum, t) => sum + (t.amount_token || 0), 0);
+        const buyVolume = buyTrades.reduce((sum, t) => sum + (t.amount_token || 0), 0);
+        const sellVolume = sellTrades.reduce((sum, t) => sum + (t.amount_token || 0), 0);
 
         candlesticks.push({
           time: new Date(parseInt(timestamp)).toISOString(),
           timestamp: parseInt(timestamp),
-          open,
-          high,
-          low,
-          close,
-          volume,
-          buyVolume,
-          sellVolume,
+          open: Number(open),
+          high: Number(high),
+          low: Number(low),
+          close: Number(close),
+          volume: Number(volume),
+          buyVolume: Number(buyVolume),
+          sellVolume: Number(sellVolume),
           trades: intervalTrades.length,
           buyTrades: buyTrades.length,
           sellTrades: sellTrades.length
@@ -287,21 +326,27 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={candlestickData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <ComposedChart 
+              data={candlestickData} 
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis 
                 dataKey="time"
-                tickFormatter={(time) => new Date(time).toLocaleDateString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric',
-                  hour: timeframe.includes('m') || timeframe.includes('h') ? '2-digit' : undefined,
-                  minute: timeframe.includes('m') ? '2-digit' : undefined
-                })}
+                tickFormatter={(time) => {
+                  const date = new Date(time);
+                  return date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: timeframe.includes('m') || timeframe.includes('h') ? '2-digit' : undefined,
+                    minute: timeframe.includes('m') ? '2-digit' : undefined
+                  });
+                }}
                 stroke="hsl(var(--muted-foreground))"
               />
               <YAxis 
-                domain={['dataMin', 'dataMax']}
-                tickFormatter={(value) => `$${value.toFixed(6)}`}
+                domain={['dataMin - 0.000001', 'dataMax + 0.000001']}
+                tickFormatter={(value) => `$${Number(value).toFixed(6)}`}
                 stroke="hsl(var(--muted-foreground))"
               />
               <Tooltip content={<CustomTooltip />} />
@@ -310,7 +355,8 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
                 <Bar
                   dataKey="high"
                   fill="transparent"
-                  shape={<CandlestickBar />}
+                  shape={(props) => <CandlestickBar {...props} />}
+                  isAnimationActive={false}
                 />
               )}
               
