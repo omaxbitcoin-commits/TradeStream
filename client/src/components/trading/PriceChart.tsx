@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, Download, Maximize2 } from 'lucide-react';
@@ -41,7 +40,7 @@ const CandlestickBar = (props: any) => {
 
   const data = payload.payload;
   const { open, high, low, close } = data;
-  
+
   if (typeof open !== 'number' || typeof high !== 'number' || 
       typeof low !== 'number' || typeof close !== 'number') {
     return null;
@@ -49,29 +48,29 @@ const CandlestickBar = (props: any) => {
 
   const isGreen = close >= open;
   const color = isGreen ? '#10b981' : '#ef4444'; // green-500 : red-500
-  
+
   const x = payload.x || 0;
   const y = payload.y || 0;
   const width = payload.width || 20;
   const height = payload.height || 100;
-  
+
   // Calculate positions relative to the chart scale
   const priceRange = high - low;
   if (priceRange === 0) return null;
-  
+
   const bodyTop = Math.max(open, close);
   const bodyBottom = Math.min(open, close);
   const bodyHeight = Math.abs(close - open);
-  
+
   const wickX = x + width / 2;
   const scale = height / priceRange;
-  
+
   // Y positions (inverted because SVG y increases downward)
   const highY = y;
   const lowY = y + height;
   const bodyTopY = y + (high - bodyTop) * scale;
   const bodyBottomY = y + (high - bodyBottom) * scale;
-  
+
   return (
     <g>
       {/* High-Low wick */}
@@ -184,11 +183,11 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
     sortedTrades.forEach(trade => {
       // Skip trades with invalid price data
       if (!trade.price || trade.price <= 0) return;
-      
+
       const tradeTime = new Date(trade.time).getTime();
       const intervalStart = Math.floor(tradeTime / intervalMs) * intervalMs;
       const intervalKey = intervalStart.toString();
-      
+
       if (!intervals[intervalKey]) {
         intervals[intervalKey] = [];
       }
@@ -197,7 +196,7 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
 
     // Convert to candlestick data
     const candlesticks: CandlestickData[] = [];
-    
+
     Object.entries(intervals)
       .sort(([a], [b]) => parseInt(a) - parseInt(b))
       .forEach(([timestamp, intervalTrades]) => {
@@ -213,13 +212,13 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
         const close = intervalTrades[intervalTrades.length - 1].price;
         const high = Math.max(...prices);
         const low = Math.min(...prices);
-        
+
         // Ensure we have valid OHLC data
         if (!open || !close || !high || !low || high < low) return;
-        
+
         const buyTrades = intervalTrades.filter(t => t.buy);
         const sellTrades = intervalTrades.filter(t => !t.buy);
-        
+
         const volume = intervalTrades.reduce((sum, t) => sum + (t.amount_token || 0), 0);
         const buyVolume = buyTrades.reduce((sum, t) => sum + (t.amount_token || 0), 0);
         const sellVolume = sellTrades.reduce((sum, t) => sum + (t.amount_token || 0), 0);
@@ -350,7 +349,7 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
                 stroke="hsl(var(--muted-foreground))"
               />
               <Tooltip content={<CustomTooltip />} />
-              
+
               {chartType === 'candlestick' && (
                 <Bar
                   dataKey="high"
@@ -359,7 +358,7 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
                   isAnimationActive={false}
                 />
               )}
-              
+
               {chartType === 'line' && (
                 <Line
                   type="monotone"
@@ -370,7 +369,7 @@ export function PriceChart({ tokenSymbol }: PriceChartProps) {
                   activeDot={{ r: 4, fill: "hsl(var(--primary))" }}
                 />
               )}
-              
+
               {chartType === 'volume' && (
                 <>
                   <Bar
