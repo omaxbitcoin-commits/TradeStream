@@ -1,61 +1,18 @@
 import { useParams } from "wouter";
-import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useOdinToken } from "../hooks/useOdinAPI";
 import { PriceChart } from "../components/trading/PriceChart";
 import { TradingInterface } from "../components/trading/TradingInterface";
+import { TokenTrades } from "../components/trading/TokenTrades";
+import { TokenPowerHolders } from "../components/trading/TokenPowerHolders";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader } from "../components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { ExternalLink, Heart, Share2, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
-// Odin API Types
-interface OdinTokenData {
-  id: string;
-  name: string;
-  ticker: string;
-  created_time: string;
-  holder_count: number;
-  price: number;
-  price_5m: number;
-  price_1h: number;
-  price_6h: number;
-  price_1d: number;
-  volume_24: number;
-  marketcap: number;
-  image: string;
-}
-
-// API function to fetch single token
+// API Base URL for images
 const ODIN_API_BASE = "https://api.odin.fun/v1";
-
-async function fetchOdinToken(tokenId: string): Promise<OdinTokenData> {
-  const response = await fetch(
-    `${ODIN_API_BASE}/token/${tokenId}?env=development`,
-  );
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch token: ${response.statusText}`);
-  }
-
-  return response.json();
-}
-
-// Hook for single token
-function useOdinToken(tokenId: string) {
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["odin", "token", tokenId],
-    queryFn: () => fetchOdinToken(tokenId),
-    refetchInterval: 30000, // 30 seconds
-    enabled: !!tokenId,
-  });
-
-  return {
-    token: data,
-    isLoading,
-    error,
-    refetch,
-  };
-}
 
 // Utility functions
 function formatNumber(num: number): string {
@@ -257,6 +214,22 @@ export default function TokenPage() {
 
           {/* Chart Container */}
           <PriceChart tokenSymbol={token.ticker} />
+
+          {/* Token Activity Tabs */}
+          <div className="mt-6">
+            <Tabs defaultValue="trades" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="trades">Recent Trades</TabsTrigger>
+                <TabsTrigger value="holders">Power Holders</TabsTrigger>
+              </TabsList>
+              <TabsContent value="trades" className="mt-6">
+                <TokenTrades tokenId={token.id} />
+              </TabsContent>
+              <TabsContent value="holders" className="mt-6">
+                <TokenPowerHolders tokenId={token.id} />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
 
         {/* Trading Panel */}
