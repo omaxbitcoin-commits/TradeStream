@@ -23,7 +23,11 @@ import {
   Palette,
   Type,
   Move,
-  RotateCcw
+  RotateCcw,
+  List,
+  Grid,
+  Layout,
+  Layers
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -35,20 +39,23 @@ interface PostTemplate {
   hashtags: string[];
   icon: React.ReactNode;
   style: 'announcement' | 'update' | 'achievement' | 'community' | 'feature' | 'stats';
+  arrangement: 'centered' | 'list' | 'banner' | 'split' | 'grid';
 }
 
 interface ImageTemplate {
   id: string;
   name: string;
-  theme: 'dark' | 'light' | 'gradient' | 'neon' | 'minimal';
+  theme: 'dark' | 'light' | 'gradient' | 'neon' | 'minimal' | 'bitcoin';
   colors: {
     primary: string;
     secondary: string;
     accent: string;
     background: string;
     text: string;
+    gold?: string;
+    copper?: string;
   };
-  layout: 'centered' | 'left-aligned' | 'split' | 'overlay' | 'banner';
+  layout: 'centered' | 'left-aligned' | 'split' | 'overlay' | 'banner' | 'list' | 'grid';
 }
 
 const postTemplates: PostTemplate[] = [
@@ -56,136 +63,154 @@ const postTemplates: PostTemplate[] = [
     id: 'launch',
     name: 'Product Launch',
     category: 'Announcement',
-    content: '🚀 Exciting news! We\'re launching a game-changing feature on @OmaxPlatform\n\n✨ Real-time token tracking\n📊 Advanced analytics\n🔥 Lightning-fast trades\n\nReady to revolutionize your crypto experience?',
-    hashtags: ['#Omax', '#DeFi', '#CryptoTrading', '#Innovation'],
+    content: '🚀 Exciting news! We\'re launching a game-changing feature on @OmaxProPlatform\n\n✨ Real-time token tracking\n📊 Advanced analytics\n🔥 Lightning-fast trades\n\nReady to revolutionize your crypto experience?',
+    hashtags: ['#OmaxPro', '#DeFi', '#CryptoTrading', '#Innovation'],
     icon: <Zap className="w-5 h-5" />,
-    style: 'announcement'
+    style: 'announcement',
+    arrangement: 'banner'
   },
   {
     id: 'milestone',
     name: 'Milestone Achievement',
     category: 'Achievement',
-    content: '🎉 MILESTONE ACHIEVED! 🎉\n\n@OmaxPlatform just hit 100K+ active traders!\n\n📈 $50M+ volume traded\n🌟 99.9% uptime\n🚀 Growing stronger every day\n\nThank you to our amazing community! 💜',
-    hashtags: ['#Omax', '#Milestone', '#Community', '#Growth'],
+    content: '🎉 MILESTONE ACHIEVED! 🎉\n\n@OmaxProPlatform just hit 100K+ active traders!\n\n📈 $50M+ volume traded\n🌟 99.9% uptime\n🚀 Growing stronger every day\n\nThank you to our amazing community! 💜',
+    hashtags: ['#OmaxPro', '#Milestone', '#Community', '#Growth'],
     icon: <Target className="w-5 h-5" />,
-    style: 'achievement'
+    style: 'achievement',
+    arrangement: 'centered'
   },
   {
     id: 'feature',
     name: 'Feature Highlight',
     category: 'Feature',
-    content: '🔥 FEATURE SPOTLIGHT 🔥\n\nOmax\'s Price Chart just got an upgrade!\n\n📊 Candlestick patterns\n⚡ Real-time updates\n📈 Multiple timeframes\n🎯 Advanced indicators\n\nTrading made simple. Trading made powerful.',
-    hashtags: ['#Omax', '#Features', '#Trading', '#Charts'],
+    content: '🔥 FEATURE SPOTLIGHT 🔥\n\nOmaxPro\'s Price Chart just got an upgrade!\n\n• 📊 Candlestick patterns\n• ⚡ Real-time updates\n• 📈 Multiple timeframes\n• 🎯 Advanced indicators\n\nTrading made simple. Trading made powerful.',
+    hashtags: ['#OmaxPro', '#Features', '#Trading', '#Charts'],
     icon: <BarChart3 className="w-5 h-5" />,
-    style: 'feature'
+    style: 'feature',
+    arrangement: 'list'
   },
   {
     id: 'stats',
     name: 'Platform Stats',
     category: 'Statistics',
-    content: '📊 OMAX BY THE NUMBERS 📊\n\n👥 500K+ Users\n💰 $100M+ Volume\n🌍 150+ Countries\n⚡ <1s Trade Execution\n🛡️ 100% Secure\n\nJoin the revolution in crypto trading! 🚀',
-    hashtags: ['#Omax', '#Stats', '#CryptoStats', '#Platform'],
+    content: '📊 OMAXPRO BY THE NUMBERS 📊\n\n👥 500K+ Users          💰 $100M+ Volume\n🌍 150+ Countries      ⚡ <1s Trade Execution\n🛡️ 100% Secure          🚀 24/7 Support\n\nJoin the revolution in crypto trading! 🚀',
+    hashtags: ['#OmaxPro', '#Stats', '#CryptoStats', '#Platform'],
     icon: <BarChart3 className="w-5 h-5" />,
-    style: 'stats'
+    style: 'stats',
+    arrangement: 'grid'
   },
   {
     id: 'community',
     name: 'Community Focus',
     category: 'Community',
-    content: '💜 COMMUNITY LOVE 💜\n\nOur traders are the heart of @OmaxPlatform\n\n🤝 Supporting each other\n📚 Sharing knowledge\n🎯 Growing together\n✨ Building the future\n\nWhat makes our community special? YOU! 🙌',
-    hashtags: ['#OmaxCommunity', '#Together', '#Traders', '#Support'],
+    content: '💜 COMMUNITY LOVE 💜\n\nOur traders are the heart of @OmaxProPlatform\n\n🤝 Supporting each other\n📚 Sharing knowledge\n🎯 Growing together\n✨ Building the future\n\nWhat makes our community special? YOU! 🙌',
+    hashtags: ['#OmaxProCommunity', '#Together', '#Traders', '#Support'],
     icon: <Users className="w-5 h-5" />,
-    style: 'community'
+    style: 'community',
+    arrangement: 'split'
   },
   {
     id: 'update',
     name: 'Platform Update',
     category: 'Update',
-    content: '🔄 PLATFORM UPDATE 🔄\n\nNew features live on @OmaxPlatform:\n\n✅ Enhanced security\n✅ Faster load times\n✅ Mobile optimization\n✅ Better UX\n\nUpdate now for the best trading experience! 📱💻',
-    hashtags: ['#Update', '#Omax', '#Enhancement', '#UserExperience'],
+    content: '🔄 PLATFORM UPDATE 🔄\n\nNew features live on @OmaxProPlatform:\n\n✅ Enhanced security\n✅ Faster load times\n✅ Mobile optimization\n✅ Better UX\n\nUpdate now for the best trading experience! 📱💻',
+    hashtags: ['#Update', '#OmaxPro', '#Enhancement', '#UserExperience'],
     icon: <Zap className="w-5 h-5" />,
-    style: 'update'
+    style: 'update',
+    arrangement: 'list'
   }
 ];
 
 const imageTemplates: ImageTemplate[] = [
   {
-    id: 'dark-gradient',
-    name: 'Dark Gradient',
-    theme: 'dark',
+    id: 'bitcoin-gold',
+    name: 'Bitcoin Gold',
+    theme: 'bitcoin',
     colors: {
-      primary: '#8B5CF6',
-      secondary: '#EC4899',
-      accent: '#10B981',
-      background: 'linear-gradient(135deg, #0F0F0F 0%, #1A1A1A 50%, #262626 100%)',
-      text: '#FFFFFF'
+      primary: '#F7931A',
+      secondary: '#FFB84D',
+      accent: '#FFC966',
+      background: 'linear-gradient(135deg, #1A1A1A 0%, #2D1B69 30%, #F7931A 100%)',
+      text: '#FFFFFF',
+      gold: '#FFD700',
+      copper: '#B87333'
     },
     layout: 'centered'
   },
   {
-    id: 'neon-purple',
-    name: 'Neon Purple',
-    theme: 'neon',
-    colors: {
-      primary: '#A855F7',
-      secondary: '#EC4899',
-      accent: '#06FFA5',
-      background: 'radial-gradient(circle at 30% 20%, #1A0B2E 0%, #16213E 40%, #0F3460 100%)',
-      text: '#FFFFFF'
-    },
-    layout: 'overlay'
-  },
-  {
-    id: 'light-minimal',
-    name: 'Light Minimal',
-    theme: 'minimal',
-    colors: {
-      primary: '#6366F1',
-      secondary: '#8B5CF6',
-      accent: '#10B981',
-      background: 'linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%)',
-      text: '#1E293B'
-    },
-    layout: 'left-aligned'
-  },
-  {
-    id: 'crypto-gold',
-    name: 'Crypto Gold',
-    theme: 'gradient',
-    colors: {
-      primary: '#F59E0B',
-      secondary: '#EF4444',
-      accent: '#10B981',
-      background: 'linear-gradient(135deg, #1A1A1A 0%, #2D1B69 50%, #F59E0B 100%)',
-      text: '#FFFFFF'
-    },
-    layout: 'split'
-  },
-  {
-    id: 'bitcoin-orange',
-    name: 'Bitcoin Orange',
-    theme: 'gradient',
+    id: 'bitcoin-dark',
+    name: 'Bitcoin Dark',
+    theme: 'bitcoin',
     colors: {
       primary: '#F7931A',
-      secondary: '#FF6B35',
-      accent: '#00D2FF',
-      background: 'linear-gradient(135deg, #000000 0%, #1A1A1A 30%, #F7931A 100%)',
-      text: '#FFFFFF'
+      secondary: '#FF8C00',
+      accent: '#FFB84D',
+      background: 'linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 50%, #2A2A2A 100%)',
+      text: '#FFFFFF',
+      gold: '#FFD700',
+      copper: '#CD7F32'
     },
     layout: 'banner'
   },
   {
-    id: 'defi-blue',
-    name: 'DeFi Blue',
-    theme: 'gradient',
+    id: 'bitcoin-copper',
+    name: 'Bitcoin Copper',
+    theme: 'bitcoin',
     colors: {
-      primary: '#0EA5E9',
-      secondary: '#3B82F6',
-      accent: '#06FFA5',
-      background: 'linear-gradient(135deg, #0C1426 0%, #1E3A8A 50%, #0EA5E9 100%)',
-      text: '#FFFFFF'
+      primary: '#B87333',
+      secondary: '#D2691E',
+      accent: '#F7931A',
+      background: 'linear-gradient(135deg, #1A1A1A 0%, #3D2B1F 50%, #B87333 100%)',
+      text: '#FFFFFF',
+      gold: '#FFD700',
+      copper: '#B87333'
     },
-    layout: 'centered'
+    layout: 'split'
+  },
+  {
+    id: 'bitcoin-gradient',
+    name: 'Bitcoin Gradient',
+    theme: 'bitcoin',
+    colors: {
+      primary: '#F7931A',
+      secondary: '#FFD700',
+      accent: '#FFA500',
+      background: 'radial-gradient(circle at 30% 20%, #1A0B2E 0%, #2D1B69 40%, #F7931A 100%)',
+      text: '#FFFFFF',
+      gold: '#FFD700',
+      copper: '#B87333'
+    },
+    layout: 'overlay'
+  },
+  {
+    id: 'bitcoin-minimal',
+    name: 'Bitcoin Minimal',
+    theme: 'bitcoin',
+    colors: {
+      primary: '#F7931A',
+      secondary: '#FFB84D',
+      accent: '#FFD700',
+      background: 'linear-gradient(135deg, #2A2A2A 0%, #3A3A3A 100%)',
+      text: '#FFFFFF',
+      gold: '#FFD700',
+      copper: '#CD7F32'
+    },
+    layout: 'left-aligned'
+  },
+  {
+    id: 'bitcoin-list',
+    name: 'Bitcoin List',
+    theme: 'bitcoin',
+    colors: {
+      primary: '#F7931A',
+      secondary: '#FFB84D',
+      accent: '#FFD700',
+      background: 'linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%)',
+      text: '#FFFFFF',
+      gold: '#FFD700',
+      copper: '#B87333'
+    },
+    layout: 'list'
   }
 ];
 
@@ -198,7 +223,7 @@ export default function XPostPage() {
   const [customHashtags, setCustomHashtags] = useState('');
   const [previewMode, setPreviewMode] = useState<'template' | 'custom'>('template');
   const [imageMode, setImageMode] = useState<'text' | 'image'>('text');
-  const [customTitle, setCustomTitle] = useState('OMAX PLATFORM');
+  const [customTitle, setCustomTitle] = useState('OMAXPRO');
   const [customSubtitle, setCustomSubtitle] = useState('The Future of DeFi Trading');
   const [customImageText, setCustomImageText] = useState('🚀 Revolutionary Trading Experience');
 
@@ -216,63 +241,66 @@ export default function XPostPage() {
     // Create gradient background
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     
-    if (selectedImageTemplate.colors.background.includes('linear-gradient')) {
-      // Parse gradient colors from CSS
-      if (selectedImageTemplate.id === 'dark-gradient') {
-        gradient.addColorStop(0, '#0F0F0F');
-        gradient.addColorStop(0.5, '#1A1A1A');
-        gradient.addColorStop(1, '#262626');
-      } else if (selectedImageTemplate.id === 'neon-purple') {
-        gradient.addColorStop(0, '#1A0B2E');
-        gradient.addColorStop(0.4, '#16213E');
-        gradient.addColorStop(1, '#0F3460');
-      } else if (selectedImageTemplate.id === 'light-minimal') {
-        gradient.addColorStop(0, '#F8FAFC');
-        gradient.addColorStop(1, '#E2E8F0');
-      } else if (selectedImageTemplate.id === 'crypto-gold') {
-        gradient.addColorStop(0, '#1A1A1A');
-        gradient.addColorStop(0.5, '#2D1B69');
-        gradient.addColorStop(1, '#F59E0B');
-      } else if (selectedImageTemplate.id === 'bitcoin-orange') {
-        gradient.addColorStop(0, '#000000');
-        gradient.addColorStop(0.3, '#1A1A1A');
-        gradient.addColorStop(1, '#F7931A');
-      } else if (selectedImageTemplate.id === 'defi-blue') {
-        gradient.addColorStop(0, '#0C1426');
-        gradient.addColorStop(0.5, '#1E3A8A');
-        gradient.addColorStop(1, '#0EA5E9');
-      }
+    // Apply template-specific gradients
+    if (selectedImageTemplate.id === 'bitcoin-gold') {
+      gradient.addColorStop(0, '#1A1A1A');
+      gradient.addColorStop(0.3, '#2D1B69');
+      gradient.addColorStop(1, '#F7931A');
+    } else if (selectedImageTemplate.id === 'bitcoin-dark') {
+      gradient.addColorStop(0, '#0A0A0A');
+      gradient.addColorStop(0.5, '#1A1A1A');
+      gradient.addColorStop(1, '#2A2A2A');
+    } else if (selectedImageTemplate.id === 'bitcoin-copper') {
+      gradient.addColorStop(0, '#1A1A1A');
+      gradient.addColorStop(0.5, '#3D2B1F');
+      gradient.addColorStop(1, '#B87333');
+    } else if (selectedImageTemplate.id === 'bitcoin-gradient') {
+      const radialGradient = ctx.createRadialGradient(canvas.width * 0.3, canvas.height * 0.2, 0, canvas.width * 0.3, canvas.height * 0.2, canvas.width);
+      radialGradient.addColorStop(0, '#1A0B2E');
+      radialGradient.addColorStop(0.4, '#2D1B69');
+      radialGradient.addColorStop(1, '#F7931A');
+      ctx.fillStyle = radialGradient;
+    } else if (selectedImageTemplate.id === 'bitcoin-minimal') {
+      gradient.addColorStop(0, '#2A2A2A');
+      gradient.addColorStop(1, '#3A3A3A');
     } else {
-      gradient.addColorStop(0, selectedImageTemplate.colors.background);
-      gradient.addColorStop(1, selectedImageTemplate.colors.primary);
+      gradient.addColorStop(0, '#1A1A1A');
+      gradient.addColorStop(1, '#2D2D2D');
     }
 
-    ctx.fillStyle = gradient;
+    if (selectedImageTemplate.id !== 'bitcoin-gradient') {
+      ctx.fillStyle = gradient;
+    }
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Add subtle grid pattern for some themes
-    if (selectedImageTemplate.theme === 'neon' || selectedImageTemplate.id === 'crypto-gold') {
-      ctx.strokeStyle = selectedImageTemplate.colors.primary + '10';
-      ctx.lineWidth = 1;
-      const gridSize = 50;
-      for (let x = 0; x <= canvas.width; x += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
-      }
-      for (let y = 0; y <= canvas.height; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
-      }
+    // Add Bitcoin-themed grid pattern
+    ctx.strokeStyle = selectedImageTemplate.colors.primary + '08';
+    ctx.lineWidth = 1;
+    const gridSize = 40;
+    for (let x = 0; x <= canvas.width; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= canvas.height; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
     }
 
-    // Draw OMAX logo (diamond shape)
-    const logoSize = 80;
-    const logoX = selectedImageTemplate.layout === 'left-aligned' ? 100 : canvas.width / 2;
-    const logoY = selectedImageTemplate.layout === 'banner' ? 150 : 180;
+    // Draw OMAX diamond logo
+    const logoSize = 70;
+    let logoX = canvas.width / 2;
+    let logoY = 160;
+
+    if (selectedImageTemplate.layout === 'left-aligned') {
+      logoX = 150;
+      logoY = 150;
+    } else if (selectedImageTemplate.layout === 'banner') {
+      logoY = 120;
+    }
 
     ctx.save();
     ctx.translate(logoX, logoY);
@@ -280,78 +308,104 @@ export default function XPostPage() {
     
     // Outer glow
     ctx.shadowColor = selectedImageTemplate.colors.primary;
-    ctx.shadowBlur = 20;
+    ctx.shadowBlur = 25;
     ctx.fillStyle = selectedImageTemplate.colors.primary;
     ctx.fillRect(-logoSize/2, -logoSize/2, logoSize, logoSize);
     
-    // Inner diamond
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = selectedImageTemplate.colors.accent;
+    // Inner diamond with gold accent
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = selectedImageTemplate.colors.gold || selectedImageTemplate.colors.accent;
     ctx.fillRect(-logoSize/3, -logoSize/3, logoSize*2/3, logoSize*2/3);
     
     ctx.restore();
 
-    // Draw brand name
+    // Draw OMAXPRO brand name
     ctx.fillStyle = selectedImageTemplate.colors.text;
-    ctx.font = 'bold 72px Inter, sans-serif';
+    ctx.font = 'bold 68px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.textAlign = selectedImageTemplate.layout === 'left-aligned' ? 'left' : 'center';
     
-    const brandX = selectedImageTemplate.layout === 'left-aligned' ? 100 : canvas.width / 2;
-    const brandY = logoY + 120;
+    let brandX = selectedImageTemplate.layout === 'left-aligned' ? 150 : canvas.width / 2;
+    let brandY = logoY + 110;
     
-    // Add text shadow/glow
+    // Add text glow effect
     ctx.shadowColor = selectedImageTemplate.colors.primary;
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 15;
     ctx.fillText(customTitle, brandX, brandY);
 
-    // Draw subtitle
-    ctx.shadowBlur = 5;
-    ctx.font = 'normal 36px Inter, sans-serif';
-    ctx.fillStyle = selectedImageTemplate.colors.text + 'CC';
-    ctx.fillText(customSubtitle, brandX, brandY + 60);
+    // Draw subtitle with copper accent
+    ctx.shadowBlur = 8;
+    ctx.font = 'normal 32px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillStyle = selectedImageTemplate.colors.copper || selectedImageTemplate.colors.secondary;
+    ctx.fillText(customSubtitle, brandX, brandY + 50);
 
-    // Draw main content
+    // Draw main content based on layout
     ctx.shadowBlur = 0;
-    ctx.font = 'bold 48px Inter, sans-serif';
+    ctx.font = 'bold 42px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.fillStyle = selectedImageTemplate.colors.text;
     
-    const contentY = brandY + 140;
+    const contentY = brandY + 120;
     const lines = customImageText.split('\n');
-    lines.forEach((line, index) => {
-      ctx.fillText(line, brandX, contentY + (index * 60));
-    });
 
-    // Draw decorative elements based on layout
+    if (selectedImageTemplate.layout === 'list') {
+      // List layout with bullet points
+      lines.forEach((line, index) => {
+        const bulletX = brandX + (selectedImageTemplate.layout === 'left-aligned' ? 0 : -300);
+        const textX = bulletX + 40;
+        
+        // Draw bullet point
+        ctx.fillStyle = selectedImageTemplate.colors.primary;
+        ctx.beginPath();
+        ctx.arc(bulletX, contentY + (index * 55), 8, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Draw text
+        ctx.fillStyle = selectedImageTemplate.colors.text;
+        ctx.font = 'normal 36px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(line.replace(/^[•\-]\s*/, ''), textX, contentY + (index * 55) + 5);
+      });
+    } else if (selectedImageTemplate.layout === 'grid') {
+      // Grid layout for stats
+      const gridCols = 2;
+      const gridSpacing = 250;
+      lines.forEach((line, index) => {
+        const col = index % gridCols;
+        const row = Math.floor(index / gridCols);
+        const gridX = brandX + (col - 0.5) * gridSpacing;
+        const gridY = contentY + (row * 60);
+        
+        ctx.font = 'bold 28px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(line, gridX, gridY);
+      });
+    } else {
+      // Default centered layout
+      lines.forEach((line, index) => {
+        ctx.textAlign = selectedImageTemplate.layout === 'left-aligned' ? 'left' : 'center';
+        ctx.fillText(line, brandX, contentY + (index * 55));
+      });
+    }
+
+    // Add decorative Bitcoin symbols
     if (selectedImageTemplate.layout === 'overlay') {
-      // Add geometric shapes
-      ctx.fillStyle = selectedImageTemplate.colors.accent + '20';
-      ctx.beginPath();
-      ctx.arc(canvas.width - 150, 150, 100, 0, Math.PI * 2);
-      ctx.fill();
-      
-      ctx.fillStyle = selectedImageTemplate.colors.secondary + '15';
-      ctx.beginPath();
-      ctx.arc(100, canvas.height - 100, 80, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.font = '60px sans-serif';
+      ctx.fillStyle = selectedImageTemplate.colors.primary + '20';
+      ctx.textAlign = 'center';
+      ctx.fillText('₿', canvas.width - 120, 120);
+      ctx.fillText('₿', 80, canvas.height - 80);
     }
 
-    if (selectedImageTemplate.layout === 'split') {
-      // Add vertical accent line
-      ctx.fillStyle = selectedImageTemplate.colors.accent;
-      ctx.fillRect(canvas.width / 2 - 2, 100, 4, canvas.height - 200);
-    }
-
-    // Add footer with social handle
-    ctx.font = 'normal 24px Inter, sans-serif';
+    // Add footer with updated social handle
+    ctx.font = 'normal 22px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.fillStyle = selectedImageTemplate.colors.text + '80';
     ctx.textAlign = 'center';
-    ctx.fillText('@OmaxPlatform', canvas.width / 2, canvas.height - 40);
+    ctx.fillText('@OmaxProPlatform', canvas.width / 2, canvas.height - 35);
 
     // Add corner branding
-    ctx.font = 'bold 18px Inter, sans-serif';
+    ctx.font = 'bold 16px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.fillStyle = selectedImageTemplate.colors.primary;
     ctx.textAlign = 'right';
-    ctx.fillText('OMAX.PRO', canvas.width - 30, 40);
+    ctx.fillText('OMAXPRO.COM', canvas.width - 25, 35);
   };
 
   useEffect(() => {
@@ -363,7 +417,7 @@ export default function XPostPage() {
     if (!canvas) return;
 
     const link = document.createElement('a');
-    link.download = `omax-post-${selectedImageTemplate.id}-${Date.now()}.png`;
+    link.download = `omaxpro-post-${selectedImageTemplate.id}-${Date.now()}.png`;
     link.href = canvas.toDataURL();
     link.click();
   };
@@ -376,19 +430,19 @@ export default function XPostPage() {
   const getStyleClasses = (style: string) => {
     switch (style) {
       case 'announcement':
-        return 'from-accent/5 to-accent/10 border-accent/20';
+        return 'from-accent/10 to-accent/20 border-accent/30 bg-gradient-to-br';
       case 'achievement':
-        return 'from-success/5 to-success/10 border-success/20';
+        return 'from-success/10 to-success/20 border-success/30 bg-gradient-to-br';
       case 'feature':
-        return 'from-primary/5 to-primary/10 border-primary/20';
+        return 'from-primary/10 to-primary/20 border-primary/30 bg-gradient-to-br';
       case 'stats':
-        return 'from-warning/5 to-warning/10 border-warning/20';
+        return 'from-warning/10 to-warning/20 border-warning/30 bg-gradient-to-br';
       case 'community':
-        return 'from-purple-500/5 to-purple-500/10 border-purple-500/20';
+        return 'from-purple-500/10 to-purple-500/20 border-purple-500/30 bg-gradient-to-br';
       case 'update':
-        return 'from-blue-500/5 to-blue-500/10 border-blue-500/20';
+        return 'from-blue-500/10 to-blue-500/20 border-blue-500/30 bg-gradient-to-br';
       default:
-        return 'from-muted/30 to-muted/50 border-border/20';
+        return 'from-muted/20 to-muted/40 border-border/30 bg-gradient-to-br';
     }
   };
 
@@ -407,20 +461,20 @@ export default function XPostPage() {
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-testid="page-x-post">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-gradient-to-br from-surface to-surface/60" data-testid="page-x-post">
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground mb-2" data-testid="text-page-title">
           X Post Creator
         </h1>
         <p className="text-muted-foreground" data-testid="text-page-subtitle">
-          Create engaging X (Twitter) posts and images for Omax with professional templates
+          Create engaging X (Twitter) posts and images for OmaxPro with professional templates
         </p>
       </div>
 
       {/* Mode Toggle */}
       <div className="mb-6">
-        <div className="flex space-x-2 bg-surface border border-border rounded-lg p-1">
+        <div className="flex space-x-2 bg-gradient-to-r from-surface to-surface/80 border-2 border-border/30 rounded-lg p-1">
           <Button
             variant={imageMode === 'text' ? 'default' : 'ghost'}
             size="sm"
@@ -448,9 +502,9 @@ export default function XPostPage() {
           {/* Templates Section */}
           <div className="lg:col-span-2">
             <Card className="border-2 border-border/50 shadow-lg bg-gradient-to-br from-surface to-surface/80">
-              <CardHeader className="bg-gradient-to-r from-accent/5 to-accent/10 rounded-t-xl border-b border-border/30">
+              <CardHeader className="bg-gradient-to-r from-accent/10 to-accent/20 rounded-t-xl border-b border-border/30">
                 <CardTitle className="flex items-center space-x-3">
-                  <div className="p-2 rounded-lg bg-accent/10 text-accent">
+                  <div className="p-2 rounded-lg bg-accent/20 text-accent">
                     <Hash className="w-5 h-5" />
                   </div>
                   <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
@@ -463,7 +517,7 @@ export default function XPostPage() {
                   {postTemplates.map((template) => (
                     <Card
                       key={template.id}
-                      className={`cursor-pointer transition-all duration-200 hover:scale-105 bg-gradient-to-r ${getStyleClasses(template.style)} ${
+                      className={`cursor-pointer transition-all duration-200 hover:scale-105 ${getStyleClasses(template.style)} ${
                         selectedTemplate?.id === template.id 
                           ? 'ring-2 ring-accent/50 shadow-lg' 
                           : 'hover:shadow-md'
@@ -476,14 +530,19 @@ export default function XPostPage() {
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center space-x-3 mb-3">
-                          <div className="p-2 rounded-lg bg-background/20 text-foreground">
+                          <div className="p-2 rounded-lg bg-background/30 text-foreground">
                             {template.icon}
                           </div>
                           <div>
                             <h3 className="font-semibold text-foreground">{template.name}</h3>
-                            <Badge variant="secondary" className="text-xs">
-                              {template.category}
-                            </Badge>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant="secondary" className="text-xs">
+                                {template.category}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {template.arrangement}
+                              </Badge>
+                            </div>
                           </div>
                         </div>
                         <p className="text-sm text-foreground/80 line-clamp-3">
@@ -509,7 +568,7 @@ export default function XPostPage() {
                 {/* Custom Post Section */}
                 <div className="mt-6 border-t border-border/30 pt-6">
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className="p-2 rounded-lg bg-accent/10 text-accent">
+                    <div className="p-2 rounded-lg bg-accent/20 text-accent">
                       <Diamond className="w-5 h-5" />
                     </div>
                     <h3 className="text-lg font-semibold text-foreground">Create Custom Post</h3>
@@ -524,7 +583,7 @@ export default function XPostPage() {
                         placeholder="Write your custom X post content here..."
                         value={customContent}
                         onChange={(e) => setCustomContent(e.target.value)}
-                        className="min-h-[120px] border-2 border-border/30 focus:border-accent/50 bg-background/80"
+                        className="min-h-[120px] border-2 border-border/30 focus:border-accent/50 bg-background text-foreground placeholder:text-muted-foreground"
                         data-testid="textarea-custom-content"
                       />
                     </div>
@@ -534,10 +593,10 @@ export default function XPostPage() {
                         Hashtags (space separated)
                       </label>
                       <Input
-                        placeholder="#Omax #DeFi #Crypto #Trading"
+                        placeholder="#OmaxPro #DeFi #Crypto #Trading"
                         value={customHashtags}
                         onChange={(e) => setCustomHashtags(e.target.value)}
-                        className="border-2 border-border/30 focus:border-accent/50 bg-background/80"
+                        className="border-2 border-border/30 focus:border-accent/50 bg-background text-foreground placeholder:text-muted-foreground"
                         data-testid="input-custom-hashtags"
                       />
                     </div>
@@ -560,9 +619,9 @@ export default function XPostPage() {
           <div className="space-y-6">
             {/* X Post Preview */}
             <Card className="border-2 border-border/50 shadow-lg bg-gradient-to-br from-surface to-surface/80">
-              <CardHeader className="bg-gradient-to-r from-accent/5 to-accent/10 rounded-t-xl border-b border-border/30">
+              <CardHeader className="bg-gradient-to-r from-accent/10 to-accent/20 rounded-t-xl border-b border-border/30">
                 <CardTitle className="flex items-center space-x-3">
-                  <div className="p-2 rounded-lg bg-accent/10 text-accent">
+                  <div className="p-2 rounded-lg bg-accent/20 text-accent">
                     <Share className="w-5 h-5" />
                   </div>
                   <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
@@ -572,20 +631,20 @@ export default function XPostPage() {
               </CardHeader>
               <CardContent className="p-4">
                 {/* X Post Card Mock */}
-                <div className="bg-background border border-border rounded-xl p-4 shadow-sm max-w-sm mx-auto">
+                <div className="bg-background border-2 border-border/30 rounded-xl p-4 shadow-sm max-w-sm mx-auto">
                   {/* Header */}
                   <div className="flex items-center space-x-3 mb-3">
                     <Avatar className="w-10 h-10 border-2 border-accent/30">
-                      <AvatarFallback className="text-sm font-semibold bg-accent/10 text-accent">
+                      <AvatarFallback className="text-sm font-semibold bg-accent/20 text-accent">
                         <Diamond className="w-5 h-5" />
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="flex items-center space-x-2">
-                        <span className="font-semibold text-foreground">Omax</span>
+                        <span className="font-semibold text-foreground">OmaxPro</span>
                         <span className="text-accent">✓</span>
                       </div>
-                      <span className="text-sm text-muted-foreground">@OmaxPlatform</span>
+                      <span className="text-sm text-muted-foreground">@OmaxProPlatform</span>
                     </div>
                   </div>
 
@@ -618,7 +677,7 @@ export default function XPostPage() {
                 <div className="mt-4 space-y-2">
                   <Button
                     onClick={() => handleCopyToClipboard(getCurrentContent(), getCurrentHashtags())}
-                    className="w-full bg-accent hover:bg-accent/90"
+                    className="w-full bg-accent hover:bg-accent/90 text-black"
                     disabled={!getCurrentContent()}
                     data-testid="button-copy-post"
                   >
@@ -651,7 +710,7 @@ export default function XPostPage() {
             </Card>
 
             {/* Tips Card */}
-            <Card className="bg-gradient-to-r from-muted/30 to-muted/50 border border-border/20">
+            <Card className="bg-gradient-to-r from-muted/30 to-muted/50 border-2 border-border/30">
               <CardContent className="p-4">
                 <h4 className="font-semibold text-foreground mb-2 flex items-center">
                   <TrendingUp className="w-4 h-4 mr-2 text-accent" />
@@ -662,7 +721,7 @@ export default function XPostPage() {
                   <li>• Keep posts under 280 characters</li>
                   <li>• Include emojis for engagement</li>
                   <li>• Post during peak hours</li>
-                  <li>• Tag @OmaxPlatform for retweets</li>
+                  <li>• Tag @OmaxProPlatform for retweets</li>
                 </ul>
               </CardContent>
             </Card>
@@ -674,13 +733,13 @@ export default function XPostPage() {
           {/* Image Templates and Customization */}
           <div className="lg:col-span-2">
             <Card className="border-2 border-border/50 shadow-lg bg-gradient-to-br from-surface to-surface/80">
-              <CardHeader className="bg-gradient-to-r from-accent/5 to-accent/10 rounded-t-xl border-b border-border/30">
+              <CardHeader className="bg-gradient-to-r from-accent/10 to-accent/20 rounded-t-xl border-b border-border/30">
                 <CardTitle className="flex items-center space-x-3">
-                  <div className="p-2 rounded-lg bg-accent/10 text-accent">
+                  <div className="p-2 rounded-lg bg-accent/20 text-accent">
                     <Palette className="w-5 h-5" />
                   </div>
                   <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                    Image Templates
+                    Bitcoin Theme Templates
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -707,9 +766,14 @@ export default function XPostPage() {
                           </div>
                         </div>
                         <h4 className="font-semibold text-sm text-foreground">{template.name}</h4>
-                        <Badge variant="outline" className="text-xs mt-1">
-                          {template.theme}
-                        </Badge>
+                        <div className="flex items-center justify-between mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {template.theme}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            {template.layout}
+                          </Badge>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
@@ -726,8 +790,8 @@ export default function XPostPage() {
                     <Input
                       value={customTitle}
                       onChange={(e) => setCustomTitle(e.target.value)}
-                      placeholder="OMAX PLATFORM"
-                      className="border-2 border-border/30 focus:border-accent/50 bg-background/80"
+                      placeholder="OMAXPRO"
+                      className="border-2 border-border/30 focus:border-accent/50 bg-background text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
                   
@@ -739,7 +803,7 @@ export default function XPostPage() {
                       value={customSubtitle}
                       onChange={(e) => setCustomSubtitle(e.target.value)}
                       placeholder="The Future of DeFi Trading"
-                      className="border-2 border-border/30 focus:border-accent/50 bg-background/80"
+                      className="border-2 border-border/30 focus:border-accent/50 bg-background text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
                   
@@ -751,7 +815,7 @@ export default function XPostPage() {
                       value={customImageText}
                       onChange={(e) => setCustomImageText(e.target.value)}
                       placeholder="🚀 Revolutionary Trading Experience"
-                      className="min-h-[100px] border-2 border-border/30 focus:border-accent/50 bg-background/80"
+                      className="min-h-[100px] border-2 border-border/30 focus:border-accent/50 bg-background text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
 
@@ -771,9 +835,9 @@ export default function XPostPage() {
           {/* Image Preview and Actions */}
           <div className="space-y-6">
             <Card className="border-2 border-border/50 shadow-lg bg-gradient-to-br from-surface to-surface/80">
-              <CardHeader className="bg-gradient-to-r from-accent/5 to-accent/10 rounded-t-xl border-b border-border/30">
+              <CardHeader className="bg-gradient-to-r from-accent/10 to-accent/20 rounded-t-xl border-b border-border/30">
                 <CardTitle className="flex items-center space-x-3">
-                  <div className="p-2 rounded-lg bg-accent/10 text-accent">
+                  <div className="p-2 rounded-lg bg-accent/20 text-accent">
                     <ImageIcon className="w-5 h-5" />
                   </div>
                   <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
@@ -786,7 +850,7 @@ export default function XPostPage() {
                 <div className="mb-4">
                   <canvas
                     ref={canvasRef}
-                    className="w-full border border-border/30 rounded-lg shadow-sm"
+                    className="w-full border-2 border-border/30 rounded-lg shadow-sm"
                     style={{ aspectRatio: '16/9' }}
                   />
                 </div>
@@ -799,7 +863,7 @@ export default function XPostPage() {
                 <div className="space-y-2">
                   <Button
                     onClick={handleDownloadImage}
-                    className="w-full bg-accent hover:bg-accent/90"
+                    className="w-full bg-accent hover:bg-accent/90 text-black"
                   >
                     <Download className="w-4 h-4 mr-2" />
                     Download Image
@@ -820,7 +884,7 @@ export default function XPostPage() {
             </Card>
 
             {/* Image Tips */}
-            <Card className="bg-gradient-to-r from-muted/30 to-muted/50 border border-border/20">
+            <Card className="bg-gradient-to-r from-muted/30 to-muted/50 border-2 border-border/30">
               <CardContent className="p-4">
                 <h4 className="font-semibold text-foreground mb-2 flex items-center">
                   <ImageIcon className="w-4 h-4 mr-2 text-accent" />
@@ -830,7 +894,7 @@ export default function XPostPage() {
                   <li>• Use 16:9 ratio for optimal X display</li>
                   <li>• Keep text large and readable</li>
                   <li>• High contrast for accessibility</li>
-                  <li>• Include brand elements consistently</li>
+                  <li>• Bitcoin theme maintains brand consistency</li>
                   <li>• Test on mobile devices</li>
                 </ul>
               </CardContent>
