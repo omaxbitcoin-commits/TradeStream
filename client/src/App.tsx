@@ -20,6 +20,7 @@ import ComingSoonPage from "@/pages/ComingSoonPage";
 import PredictionMarketsPage from "@/pages/PredictionMarketsPage";
 import PredictionMarketDetailPage from "@/pages/PredictionMarketDetailPage";
 import CreatePredictionPage from "@/pages/CreatePredictionPage";
+import XPostPage from "@/pages/XPostPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -39,6 +40,7 @@ function Router() {
         <Route path="/prediction-markets" component={PredictionMarketsPage} />
         <Route path="/create-prediction" component={CreatePredictionPage} />
         <Route path="/prediction/:id" component={PredictionMarketDetailPage} />
+        <Route path="/x-post" component={XPostPage} />
         <Route path="/coming-soon" component={ComingSoonPage} />
         <Route component={NotFound} />
       </Switch>
