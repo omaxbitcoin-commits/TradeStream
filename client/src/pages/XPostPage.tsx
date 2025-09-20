@@ -55,7 +55,7 @@ interface ImageTemplate {
     gold?: string;
     copper?: string;
   };
-  layout: 'centered' | 'left-aligned' | 'split' | 'overlay' | 'banner' | 'list' | 'grid';
+  layout: 'centered' | 'left-aligned' | 'split' | 'overlay' | 'banner' | 'list' | 'grid' | 'corner' | 'diagonal' | 'circle';
 }
 
 const postTemplates: PostTemplate[] = [
@@ -211,6 +211,51 @@ const imageTemplates: ImageTemplate[] = [
       copper: '#B87333'
     },
     layout: 'list'
+  },
+  {
+    id: 'bitcoin-corner',
+    name: 'Bitcoin Corner',
+    theme: 'bitcoin',
+    colors: {
+      primary: '#F7931A',
+      secondary: '#FFB84D',
+      accent: '#FFD700',
+      background: 'linear-gradient(135deg, #1A1A1A 0%, #2D1B69 100%)',
+      text: '#FFFFFF',
+      gold: '#FFD700',
+      copper: '#B87333'
+    },
+    layout: 'corner'
+  },
+  {
+    id: 'bitcoin-diagonal',
+    name: 'Bitcoin Diagonal',
+    theme: 'bitcoin',
+    colors: {
+      primary: '#F7931A',
+      secondary: '#FFB84D',
+      accent: '#FFD700',
+      background: 'linear-gradient(45deg, #0A0A0A 0%, #F7931A 100%)',
+      text: '#FFFFFF',
+      gold: '#FFD700',
+      copper: '#B87333'
+    },
+    layout: 'diagonal'
+  },
+  {
+    id: 'bitcoin-circle',
+    name: 'Bitcoin Circle',
+    theme: 'bitcoin',
+    colors: {
+      primary: '#F7931A',
+      secondary: '#FFB84D',
+      accent: '#FFD700',
+      background: 'radial-gradient(circle, #1A1A1A 0%, #F7931A 100%)',
+      text: '#FFFFFF',
+      gold: '#FFD700',
+      copper: '#B87333'
+    },
+    layout: 'circle'
   }
 ];
 
@@ -226,6 +271,20 @@ export default function XPostPage() {
   const [customTitle, setCustomTitle] = useState('OMAXPRO');
   const [customSubtitle, setCustomSubtitle] = useState('The Future of DeFi Trading');
   const [customImageText, setCustomImageText] = useState('🚀 Revolutionary Trading Experience');
+  const [selectedLayout, setSelectedLayout] = useState<ImageTemplate['layout']>('centered');
+
+  const layoutOptions = [
+    { id: 'centered', name: 'Centered', icon: <Target className="w-4 h-4" /> },
+    { id: 'left-aligned', name: 'Left Aligned', icon: <Move className="w-4 h-4" /> },
+    { id: 'split', name: 'Split', icon: <Layout className="w-4 h-4" /> },
+    { id: 'overlay', name: 'Overlay', icon: <Layers className="w-4 h-4" /> },
+    { id: 'banner', name: 'Banner', icon: <BarChart3 className="w-4 h-4" /> },
+    { id: 'list', name: 'List', icon: <List className="w-4 h-4" /> },
+    { id: 'grid', name: 'Grid', icon: <Grid className="w-4 h-4" /> },
+    { id: 'corner', name: 'Corner', icon: <Diamond className="w-4 h-4" /> },
+    { id: 'diagonal', name: 'Diagonal', icon: <TrendingUp className="w-4 h-4" /> },
+    { id: 'circle', name: 'Circle', icon: <Coins className="w-4 h-4" /> }
+  ] as const;
 
   const drawImageTemplate = () => {
     const canvas = canvasRef.current;
@@ -290,42 +349,90 @@ export default function XPostPage() {
       ctx.stroke();
     }
 
-    // Draw OMAX diamond logo
-    const logoSize = 70;
+    // Draw OMAX logo
+    const logoSize = 60;
     let logoX = canvas.width / 2;
     let logoY = 160;
 
-    if (selectedImageTemplate.layout === 'left-aligned') {
+    // Adjust logo position based on layout
+    if (selectedLayout === 'left-aligned' || selectedImageTemplate.layout === 'left-aligned') {
       logoX = 150;
       logoY = 150;
-    } else if (selectedImageTemplate.layout === 'banner') {
+    } else if (selectedLayout === 'banner' || selectedImageTemplate.layout === 'banner') {
       logoY = 120;
+    } else if (selectedLayout === 'corner') {
+      logoX = 120;
+      logoY = 120;
+    } else if (selectedLayout === 'diagonal') {
+      logoX = canvas.width - 150;
+      logoY = 120;
+    } else if (selectedLayout === 'circle') {
+      logoX = canvas.width / 2;
+      logoY = canvas.height / 2 - 100;
     }
 
+    // Draw OMAX diamond shape
     ctx.save();
     ctx.translate(logoX, logoY);
-    ctx.rotate(Math.PI / 4);
     
     // Outer glow
     ctx.shadowColor = selectedImageTemplate.colors.primary;
-    ctx.shadowBlur = 25;
-    ctx.fillStyle = selectedImageTemplate.colors.primary;
-    ctx.fillRect(-logoSize/2, -logoSize/2, logoSize, logoSize);
+    ctx.shadowBlur = 20;
     
-    // Inner diamond with gold accent
+    // Draw diamond shape for OMAX logo
+    ctx.beginPath();
+    ctx.moveTo(0, -logoSize/2);
+    ctx.lineTo(logoSize/2, 0);
+    ctx.lineTo(0, logoSize/2);
+    ctx.lineTo(-logoSize/2, 0);
+    ctx.closePath();
+    
+    // Fill with gradient
+    const logoGradient = ctx.createLinearGradient(-logoSize/2, -logoSize/2, logoSize/2, logoSize/2);
+    logoGradient.addColorStop(0, selectedImageTemplate.colors.primary);
+    logoGradient.addColorStop(1, selectedImageTemplate.colors.gold || selectedImageTemplate.colors.accent);
+    ctx.fillStyle = logoGradient;
+    ctx.fill();
+    
+    // Add inner diamond
     ctx.shadowBlur = 10;
-    ctx.fillStyle = selectedImageTemplate.colors.gold || selectedImageTemplate.colors.accent;
-    ctx.fillRect(-logoSize/3, -logoSize/3, logoSize*2/3, logoSize*2/3);
+    ctx.beginPath();
+    ctx.moveTo(0, -logoSize/3);
+    ctx.lineTo(logoSize/3, 0);
+    ctx.lineTo(0, logoSize/3);
+    ctx.lineTo(-logoSize/3, 0);
+    ctx.closePath();
+    ctx.fillStyle = selectedImageTemplate.colors.background.includes('gradient') ? 
+      selectedImageTemplate.colors.gold : selectedImageTemplate.colors.text;
+    ctx.fill();
     
     ctx.restore();
 
     // Draw OMAXPRO brand name
     ctx.fillStyle = selectedImageTemplate.colors.text;
     ctx.font = 'bold 68px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
-    ctx.textAlign = selectedImageTemplate.layout === 'left-aligned' ? 'left' : 'center';
     
-    let brandX = selectedImageTemplate.layout === 'left-aligned' ? 150 : canvas.width / 2;
+    let brandX = canvas.width / 2;
     let brandY = logoY + 110;
+    
+    // Adjust brand positioning based on layout
+    if (selectedLayout === 'left-aligned' || selectedImageTemplate.layout === 'left-aligned') {
+      ctx.textAlign = 'left';
+      brandX = 150;
+    } else if (selectedLayout === 'corner') {
+      ctx.textAlign = 'left';
+      brandX = 120;
+      brandY = logoY + 90;
+    } else if (selectedLayout === 'diagonal') {
+      ctx.textAlign = 'right';
+      brandX = canvas.width - 150;
+      brandY = logoY + 90;
+    } else if (selectedLayout === 'circle') {
+      ctx.textAlign = 'center';
+      brandY = canvas.height / 2 - 30;
+    } else {
+      ctx.textAlign = 'center';
+    }
     
     // Add text glow effect
     ctx.shadowColor = selectedImageTemplate.colors.primary;
@@ -343,13 +450,22 @@ export default function XPostPage() {
     ctx.font = 'bold 42px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.fillStyle = selectedImageTemplate.colors.text;
     
-    const contentY = brandY + 120;
+    let contentY = brandY + 120;
     const lines = customImageText.split('\n');
 
-    if (selectedImageTemplate.layout === 'list') {
+    // Adjust content positioning based on selected layout
+    if (selectedLayout === 'corner') {
+      contentY = brandY + 80;
+    } else if (selectedLayout === 'diagonal') {
+      contentY = canvas.height / 2;
+    } else if (selectedLayout === 'circle') {
+      contentY = canvas.height / 2 + 60;
+    }
+
+    if (selectedLayout === 'list' || selectedImageTemplate.layout === 'list') {
       // List layout with bullet points
       lines.forEach((line, index) => {
-        const bulletX = brandX + (selectedImageTemplate.layout === 'left-aligned' ? 0 : -300);
+        const bulletX = brandX + (ctx.textAlign === 'left' ? 0 : -300);
         const textX = bulletX + 40;
         
         // Draw bullet point
@@ -364,7 +480,7 @@ export default function XPostPage() {
         ctx.textAlign = 'left';
         ctx.fillText(line.replace(/^[•\-]\s*/, ''), textX, contentY + (index * 55) + 5);
       });
-    } else if (selectedImageTemplate.layout === 'grid') {
+    } else if (selectedLayout === 'grid' || selectedImageTemplate.layout === 'grid') {
       // Grid layout for stats
       const gridCols = 2;
       const gridSpacing = 250;
@@ -378,10 +494,23 @@ export default function XPostPage() {
         ctx.textAlign = 'center';
         ctx.fillText(line, gridX, gridY);
       });
-    } else {
-      // Default centered layout
+    } else if (selectedLayout === 'split') {
+      // Split layout - content on opposite side
+      const splitX = brandX > canvas.width / 2 ? canvas.width / 4 : (canvas.width * 3) / 4;
       lines.forEach((line, index) => {
-        ctx.textAlign = selectedImageTemplate.layout === 'left-aligned' ? 'left' : 'center';
+        ctx.textAlign = 'center';
+        ctx.fillText(line, splitX, contentY + (index * 55));
+      });
+    } else if (selectedLayout === 'diagonal') {
+      // Diagonal layout - content on opposite diagonal
+      const diagX = brandX > canvas.width / 2 ? 200 : canvas.width - 200;
+      lines.forEach((line, index) => {
+        ctx.textAlign = brandX > canvas.width / 2 ? 'left' : 'right';
+        ctx.fillText(line, diagX, contentY + (index * 55));
+      });
+    } else {
+      // Default layout
+      lines.forEach((line, index) => {
         ctx.fillText(line, brandX, contentY + (index * 55));
       });
     }
@@ -399,18 +528,18 @@ export default function XPostPage() {
     ctx.font = 'normal 22px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.fillStyle = selectedImageTemplate.colors.text + '80';
     ctx.textAlign = 'center';
-    ctx.fillText('@OmaxProPlatform', canvas.width / 2, canvas.height - 35);
+    ctx.fillText('@omaxpro_', canvas.width / 2, canvas.height - 35);
 
     // Add corner branding
     ctx.font = 'bold 16px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.fillStyle = selectedImageTemplate.colors.primary;
     ctx.textAlign = 'right';
-    ctx.fillText('OMAXPRO.COM', canvas.width - 25, 35);
+    ctx.fillText('OMAXPRO', canvas.width - 25, 35);
   };
 
   useEffect(() => {
     drawImageTemplate();
-  }, [selectedImageTemplate, customTitle, customSubtitle, customImageText]);
+  }, [selectedImageTemplate, customTitle, customSubtitle, customImageText, selectedLayout]);
 
   const handleDownloadImage = () => {
     const canvas = canvasRef.current;
@@ -771,7 +900,7 @@ export default function XPostPage() {
                             {template.theme}
                           </Badge>
                           <Badge variant="secondary" className="text-xs">
-                            {template.layout}
+                            {selectedLayout}
                           </Badge>
                         </div>
                       </CardContent>
@@ -782,6 +911,27 @@ export default function XPostPage() {
                 {/* Customization Controls */}
                 <div className="space-y-4 border-t border-border/30 pt-6">
                   <h3 className="text-lg font-semibold text-foreground mb-4">Customize Content</h3>
+                  
+                  {/* Layout Selector */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-3">
+                      Layout Style
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {layoutOptions.map((layout) => (
+                        <Button
+                          key={layout.id}
+                          variant={selectedLayout === layout.id ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSelectedLayout(layout.id)}
+                          className="flex items-center space-x-2"
+                        >
+                          {layout.icon}
+                          <span className="text-xs">{layout.name}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
