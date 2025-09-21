@@ -1,58 +1,19 @@
 import React, { useState } from 'react';
-import { useOdinTokenPowerHolders, type OdinPowerHolderData } from '@/hooks/useOdinAPI';
+import { useOdinTokenPowerHolders, getOdinImageUrl, type OdinPowerHolderData } from '@/hooks/useOdinAPI';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Crown, User, DollarSign, TrendingUp } from 'lucide-react';
+import { formatTokenAmount, formatUSD, formatUserId } from '@/lib/odinFormatting';
 
-// Assume getOdinImageUrl is defined elsewhere or needs to be defined here.
-// For the purpose of this example, let's assume it's available in the scope.
-// If it's not, this code would require the definition of getOdinImageUrl.
-// Example placeholder definition:
-// const getOdinImageUrl = (type: string, id: string | undefined) => {
-//   if (!id) return `https://placehold.co/32x32/f3f4f6/9ca3af?text=U`;
-//   if (type === 'user') {
-//     return `https://api.odin.fun/v1/user/${id}/image`;
-//   }
-//   if (type === 'token') {
-//     return `https://api.odin.fun/v1/token/${id}/image`;
-//   }
-//   return `https://placehold.co/32x32/f3f4f6/9ca3af?text=U`;
-// };
 
 
 interface TokenPowerHoldersProps {
   tokenId: string;
 }
 
-function formatBalance(balance: number): string {
-  if (balance >= 1e9) return `${(balance / 1e9).toFixed(2)}B`;
-  if (balance >= 1e6) return `${(balance / 1e6).toFixed(2)}M`;
-  if (balance >= 1e3) return `${(balance / 1e3).toFixed(2)}K`;
-  return balance.toFixed(2);
-}
-
-function formatFiatValue(value: number): string {
-  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
-  if (value >= 1e3) return `$${(value / 1e3).toFixed(2)}K`;
-  return `$${value.toFixed(2)}`;
-}
-
-// Assuming getOdinImageUrl is defined in the same scope or imported.
-// If getOdinImageUrl is not defined, it needs to be added.
-// For this example, we will assume it exists and is correctly imported or defined.
-// A placeholder for getOdinImageUrl to make the code runnable:
-const getOdinImageUrl = (type: 'user' | 'token', id: string | undefined): string => {
-  if (!id) return `https://placehold.co/32x32/f3f4f6/9ca3af?text=U`;
-  if (type === 'user') {
-    return `https://api.odin.fun/v1/user/${id}/image`;
-  }
-  if (type === 'token') {
-    return `https://api.odin.fun/v1/token/${id}/image`;
-  }
-  return `https://placehold.co/32x32/f3f4f6/9ca3af?text=U`;
-};
+// Using formatting utilities from odinFormatting.ts and getOdinImageUrl from useOdinAPI
 
 export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,6 +56,7 @@ export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
   });
 
   // Calculate total balance for percentage calculations
+  // Note: This should ideally use total token supply, but using displayed holders sum for now
   const totalBalance = powerHolders.reduce((sum, holder) => sum + holder.balance, 0);
 
   if (isLoading) {
@@ -201,7 +163,7 @@ export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
                     <TableHead className="w-[50px]">Rank</TableHead>
                     <TableHead>Holder</TableHead>
                     <TableHead className="text-right">Balance</TableHead>
-                    <TableHead className="text-right">% of Supply</TableHead>
+                    <TableHead className="text-right">% of Displayed</TableHead>
                     <TableHead className="text-right">Fiat Value</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -233,10 +195,10 @@ export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
                             />
                             <div>
                               <div className="font-medium text-sm">
-                                {holder.user_username || `${holder.user?.slice(0, 8) || 'Unknown'}...`}
+                                {holder.user_username || formatUserId(holder.user || 'Unknown')}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                {holder.user ? `${holder.user.slice(0, 6)}...${holder.user.slice(-4)}` : 'Unknown'}
+                                {holder.user ? formatUserId(holder.user) : 'Unknown'}
                               </div>
                             </div>
                           </div>
@@ -244,7 +206,7 @@ export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
                         <TableCell className="text-right">
                           <div className="font-mono">
                             <div className="font-medium">
-                              {formatBalance(holder.balance)}
+                              {formatTokenAmount(holder.balance)}
                             </div>
                             <div className="text-xs text-muted-foreground">
                               tokens
@@ -262,7 +224,7 @@ export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
                           </div>
                         </TableCell>
                         <TableCell className="text-right font-mono font-medium">
-                          {formatFiatValue(holder.fiat_value)}
+                          {formatUSD(holder.fiat_value)}
                         </TableCell>
                       </TableRow>
                     );
@@ -315,7 +277,7 @@ export function TokenPowerHolders({ tokenId }: TokenPowerHoldersProps) {
               <div className="text-center p-3 bg-muted/50 rounded-lg">
                 <div className="text-sm text-muted-foreground">Total Value</div>
                 <div className="text-lg font-bold">
-                  {formatFiatValue(powerHolders.reduce((sum, holder) => sum + holder.fiat_value, 0))}
+                  {formatUSD(powerHolders.reduce((sum, holder) => sum + holder.fiat_value, 0))}
                 </div>
               </div>
             </div>

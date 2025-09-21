@@ -1,46 +1,17 @@
 import React, { useState } from 'react';
-import { useOdinTokenTrades, type OdinTradeData } from '@/hooks/useOdinAPI';
+import { useOdinTokenTrades, getOdinImageUrl, type OdinTradeData } from '@/hooks/useOdinAPI';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TrendingUp, TrendingDown, ArrowUpDown, User, Clock, DollarSign } from 'lucide-react';
+import { formatTokenAmount, formatBTCOrSats, formatBTC, formatTimeAgo, formatUserId } from '@/lib/odinFormatting';
 
 interface TokenTradesProps {
   tokenId: string;
 }
 
-function formatTime(timeString: string): string {
-  const date = new Date(timeString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays > 0) return `${diffDays}d ago`;
-  if (diffHours > 0) return `${diffHours}h ago`;
-  if (diffMinutes > 0) return `${diffMinutes}m ago`;
-  return "Just now";
-}
-
-function formatAmount(amount: number): string {
-  if (amount >= 1e6) return `${(amount / 1e6).toFixed(2)}M`;
-  if (amount >= 1e3) return `${(amount / 1e3).toFixed(2)}K`;
-  return amount.toFixed(8);
-}
-
-function formatPrice(price: number): string {
-  if (price < 0.01) return `$${price.toFixed(8)}`;
-  if (price < 1) return `$${price.toFixed(6)}`;
-  return `$${price.toFixed(4)}`;
-}
-
-// Helper function to get Odin image URLs
-function getOdinImageUrl(type: 'user' | 'token', id: string | undefined): string {
-  if (!id) return `https://placehold.co/24x24/f3f4f6/9ca3af?text=U`;
-  return `https://api.odin.fun/v1/${type}/${id}/image`;
-}
+// Using formatting utilities from odinFormatting.ts and getOdinImageUrl from useOdinAPI
 
 export function TokenTrades({ tokenId }: TokenTradesProps) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -203,9 +174,9 @@ export function TokenTrades({ tokenId }: TokenTradesProps) {
                   <TableRow>
                     <TableHead className="w-[80px]">Type</TableHead>
                     <TableHead>User</TableHead>
-                    <TableHead className="text-right">Amount (BTC)</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
                     <TableHead className="text-right">Amount (Token)</TableHead>
-                    <TableHead className="text-right">Price</TableHead>
+                    <TableHead className="text-right">Price (BTC)</TableHead>
                     <TableHead className="text-right">Time</TableHead>
                     <TableHead className="w-[80px]">Status</TableHead>
                   </TableRow>
@@ -244,25 +215,25 @@ export function TokenTrades({ tokenId }: TokenTradesProps) {
                           )}
                           <div>
                             <div className="font-medium text-sm">
-                              {trade.user_username || `${trade.user?.slice(0, 8) || 'Unknown'}...`}
+                              {trade.user_username || formatUserId(trade.user || 'Unknown')}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {trade.user ? `${trade.user.slice(0, 6)}...${trade.user.slice(-4)}` : 'Unknown'}
+                              {trade.user ? formatUserId(trade.user) : 'Unknown'}
                             </div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-right font-mono">
-                        {formatAmount(trade.amount_btc)} BTC
+                        {formatBTCOrSats(trade.amount_btc)}
                       </TableCell>
                       <TableCell className="text-right font-mono">
-                        {formatAmount(trade.amount_token)}
+                        {formatTokenAmount(trade.amount_token)}
                       </TableCell>
                       <TableCell className="text-right font-mono">
-                        {formatPrice(trade.price)}
+                        {formatBTC(trade.price)}
                       </TableCell>
                       <TableCell className="text-right text-sm text-muted-foreground">
-                        {formatTime(trade.time)}
+                        {formatTimeAgo(trade.time)}
                       </TableCell>
                       <TableCell>
                         <Badge 
